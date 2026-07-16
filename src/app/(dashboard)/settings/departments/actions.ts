@@ -1,6 +1,7 @@
 'use server';
 
 import { revalidatePath } from 'next/cache';
+import { Prisma } from '@/generated/prisma/client';
 import { auth } from '@/auth';
 import { prisma } from '@/lib/prisma';
 import { hasPermission } from '@/lib/permissions';
@@ -173,6 +174,8 @@ export async function updateDepartmentAction(
     if (isP2025(e)) return err('NOT_FOUND', 'Departamento no encontrado');
     if (isP2002(e, 'name'))
       return err('CONFLICT', 'Nombre duplicado', { name: 'Ya existe un departamento con este nombre' });
+    if (e instanceof Prisma.PrismaClientValidationError)
+      return err('VALIDATION', 'Datos inválidos enviados al servidor');
     return err('UNKNOWN', 'Error al actualizar departamento');
   }
 }

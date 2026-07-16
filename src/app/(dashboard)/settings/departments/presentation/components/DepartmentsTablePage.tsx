@@ -172,7 +172,7 @@ export function DepartmentsTablePage({
         onOpenChange={(o) => setUiState((s) => ({ ...s, editOpen: o }))}
         title={uiState.editing ? `Editar ${uiState.editing.name}` : 'Editar departamento'}
         formConfig={departmentFormConfig}
-        defaultValues={uiState.editing ? (uiState.editing as unknown as Record<string, unknown>) : undefined}
+        defaultValues={uiState.editing ? { name: uiState.editing.name } : undefined}
         isLoading={pending}
         onSubmit={(data) => {
           if (!uiState.editing) return;
