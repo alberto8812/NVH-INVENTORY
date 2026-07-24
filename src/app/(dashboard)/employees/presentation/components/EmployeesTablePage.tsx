@@ -10,6 +10,7 @@ import { MainDataTable } from '@/components/tables/MainTable';
 import { TablePageToolbar } from '@/components/dashboard/TablePageToolbar';
 import { Show } from '@/components/show/Show.component';
 import { CrudFormDialog } from '@/shared/presentation/components/form-builder/CrudFormDialog';
+import { ConfirmDialog } from '@/shared/presentation/components/ConfirmDialog';
 import { ExcelImportDialog } from '@/shared/excel-import/components/ExcelImportDialog';
 import { employeeColumns } from './columns-employees';
 import { buildEmployeeFormConfig } from '../forms/employee-form.config';
@@ -46,6 +47,7 @@ export function EmployeesTablePage({
   });
   const [editing, setEditing] = useState<EmployeeRow | null>(null);
   const [downloadId, setDownloadId] = useState<string | null>(null);
+  const [deleteTarget, setDeleteTarget] = useState<EmployeeRow | null>(null);
 
   const router = useRouter();
   const pathname = usePathname();
@@ -103,9 +105,7 @@ export function EmployeesTablePage({
                       );
                       return;
                     }
-                    if (confirm(`¿Eliminar a ${row.original.fullName}?`)) {
-                      remove(row.original.id, () => {});
-                    }
+                    setDeleteTarget(row.original);
                   }}
                 >
                   <Trash2 className="h-4 w-4 text-destructive" />
@@ -250,6 +250,19 @@ export function EmployeesTablePage({
           onDone={() => setDownloadId(null)}
         />
       )}
+
+      <ConfirmDialog
+        open={!!deleteTarget}
+        onOpenChange={(open) => !open && setDeleteTarget(null)}
+        title={`¿Eliminar a ${deleteTarget?.fullName}?`}
+        confirmLabel="Eliminar"
+        variant="destructive"
+        loading={pending}
+        onConfirm={() => {
+          if (!deleteTarget) return;
+          remove(deleteTarget.id, () => setDeleteTarget(null));
+        }}
+      />
     </div>
   );
 }
