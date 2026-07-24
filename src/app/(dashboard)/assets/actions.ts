@@ -617,7 +617,17 @@ export async function deleteAssetAction(id: string): Promise<ActionResult<void>>
   // HAS_CHILDREN guard stays BEFORE the transaction
   const row = await prisma.asset.findUnique({
     where: { id },
-    select: { _count: { select: { assignments: true, components: true } } },
+    select: {
+      _count: {
+        select: {
+          assignments: true,
+          components: true,
+          maintenances: true,
+          movements: true,
+          depreciationSnapshots: true,
+        },
+      },
+    },
   });
   if (!row) return err('NOT_FOUND', 'Activo no encontrado');
   if (row._count.assignments > 0)
@@ -629,6 +639,21 @@ export async function deleteAssetAction(id: string): Promise<ActionResult<void>>
     return err(
       'HAS_CHILDREN',
       `No se puede eliminar: tiene ${row._count.components} componentes vinculados.`,
+    );
+  if (row._count.maintenances > 0)
+    return err(
+      'HAS_CHILDREN',
+      `No se puede eliminar: tiene ${row._count.maintenances} mantenimiento(s) registrado(s). Usá "Desactivar" en su lugar.`,
+    );
+  if (row._count.movements > 0)
+    return err(
+      'HAS_CHILDREN',
+      `No se puede eliminar: tiene ${row._count.movements} traslado(s) registrado(s). Usá "Desactivar" en su lugar.`,
+    );
+  if (row._count.depreciationSnapshots > 0)
+    return err(
+      'HAS_CHILDREN',
+      `No se puede eliminar: tiene ${row._count.depreciationSnapshots} corte(s) de depreciación. Usá "Desactivar" en su lugar.`,
     );
 
   const { ip, userAgent } = await getRequestMeta();
