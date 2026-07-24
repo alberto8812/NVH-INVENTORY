@@ -11,6 +11,7 @@ import { Show } from '@/components/show/Show.component';
 import { Badge } from '@/components/ui/badge';
 import { movimientosColumns } from './columns-movimientos';
 import { CrudFormDialog } from '@/shared/presentation/components/form-builder/CrudFormDialog';
+import { ConfirmDialog } from '@/shared/presentation/components/ConfirmDialog';
 import { buildMovimientoFormConfig } from '../forms/movimiento-form.config';
 import { useMovimientos } from '../hooks/use-movimientos';
 import type { MovementRow, MovementType } from '../dto/movement.dto';
@@ -51,6 +52,7 @@ export function MovimientosTablePage({
   currentAssetLabel,
 }: Props) {
   const [createOpen, setCreateOpen] = useState(false);
+  const [deleteTarget, setDeleteTarget] = useState<MovementRow | null>(null);
   const formConfig = buildMovimientoFormConfig();
   const router = useRouter();
   const pathname = usePathname();
@@ -80,11 +82,7 @@ export function MovimientosTablePage({
                 variant="ghost"
                 className="h-8 w-8"
                 title="Eliminar traslado"
-                onClick={() => {
-                  if (confirm('¿Eliminar este traslado? Esta acción no revierte la ubicación del activo.')) {
-                    remove(row.original.id, () => {});
-                  }
-                }}
+                onClick={() => setDeleteTarget(row.original)}
               >
                 <Trash2 className="h-4 w-4 text-destructive" />
               </Button>
@@ -188,6 +186,20 @@ export function MovimientosTablePage({
             () => setCreateOpen(false),
           )
         }
+      />
+
+      <ConfirmDialog
+        open={!!deleteTarget}
+        onOpenChange={(open) => !open && setDeleteTarget(null)}
+        title="¿Eliminar este traslado?"
+        description="Esta acción no revierte la ubicación del activo."
+        confirmLabel="Eliminar"
+        variant="destructive"
+        loading={pending}
+        onConfirm={() => {
+          if (!deleteTarget) return;
+          remove(deleteTarget.id, () => setDeleteTarget(null));
+        }}
       />
     </div>
   );

@@ -61,6 +61,7 @@ export function AssetsTablePage({
   const { pending, create, update, deactivate, remove } = useAssets();
   const [snapshotPending, setSnapshotPending] = useState(false);
   const [snapshotConfirmOpen, setSnapshotConfirmOpen] = useState(false);
+  const [deleteTarget, setDeleteTarget] = useState<AssetRow | null>(null);
   const snapshotYear = new Date().getFullYear();
 
   async function runSnapshotCut() {
@@ -125,9 +126,7 @@ export function AssetsTablePage({
                       toast.error('No se puede eliminar: tiene asignaciones o componentes vinculados.');
                       return;
                     }
-                    if (confirm(`¿Eliminar activo ${row.original.assetCode}?`)) {
-                      remove(row.original.id, () => {});
-                    }
+                    setDeleteTarget(row.original);
                   }}
                 >
                   <Trash2 className="h-4 w-4 text-destructive" />
@@ -289,6 +288,19 @@ export function AssetsTablePage({
             </p>
           </div>
         }
+      />
+
+      <ConfirmDialog
+        open={!!deleteTarget}
+        onOpenChange={(open) => !open && setDeleteTarget(null)}
+        title={`¿Eliminar activo ${deleteTarget?.assetCode}?`}
+        confirmLabel="Eliminar"
+        variant="destructive"
+        loading={pending}
+        onConfirm={() => {
+          if (!deleteTarget) return;
+          remove(deleteTarget.id, () => setDeleteTarget(null));
+        }}
       />
     </div>
   );

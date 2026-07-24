@@ -9,6 +9,7 @@ import { MainDataTable } from '@/components/tables/MainTable';
 import { TablePageToolbar } from '@/components/dashboard/TablePageToolbar';
 import { Show } from '@/components/show/Show.component';
 import { CrudFormDialog } from '@/shared/presentation/components/form-builder/CrudFormDialog';
+import { ConfirmDialog } from '@/shared/presentation/components/ConfirmDialog';
 import { companiesColumns } from './columns-companies';
 import { companyFormConfig } from '../forms/company-form.config';
 import { useCompanies } from '../hooks/use-companies';
@@ -43,6 +44,7 @@ export function CompaniesTablePage({
     editing: null,
     editKey: 0,
   });
+  const [deleteTarget, setDeleteTarget] = useState<CompanyRow | null>(null);
 
   const router = useRouter();
   const pathname = usePathname();
@@ -86,11 +88,7 @@ export function CompaniesTablePage({
               size="icon"
               variant="ghost"
               className="h-8 w-8"
-              onClick={() => {
-                if (confirm(`¿Eliminar la empresa "${row.original.name}" (${row.original.code})?`)) {
-                  remove(row.original.id, () => {});
-                }
-              }}
+              onClick={() => setDeleteTarget(row.original)}
             >
               <Trash2 className="h-4 w-4 text-destructive" />
             </Button>
@@ -184,6 +182,19 @@ export function CompaniesTablePage({
           update(uiState.editing.id, data as never, () =>
             setUiState((s) => ({ ...s, editOpen: false })),
           );
+        }}
+      />
+
+      <ConfirmDialog
+        open={!!deleteTarget}
+        onOpenChange={(open) => !open && setDeleteTarget(null)}
+        title={`¿Eliminar la empresa "${deleteTarget?.name}" (${deleteTarget?.code})?`}
+        confirmLabel="Eliminar"
+        variant="destructive"
+        loading={pending}
+        onConfirm={() => {
+          if (!deleteTarget) return;
+          remove(deleteTarget.id, () => setDeleteTarget(null));
         }}
       />
     </div>

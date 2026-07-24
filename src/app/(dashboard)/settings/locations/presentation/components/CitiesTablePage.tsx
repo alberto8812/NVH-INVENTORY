@@ -9,6 +9,7 @@ import { MainDataTable } from '@/components/tables/MainTable';
 import { TablePageToolbar } from '@/components/dashboard/TablePageToolbar';
 import { Show } from '@/components/show/Show.component';
 import { CrudFormDialog } from '@/shared/presentation/components/form-builder/CrudFormDialog';
+import { ConfirmDialog } from '@/shared/presentation/components/ConfirmDialog';
 import { citiesColumns } from './columns-cities';
 import { buildCityFormConfig } from '../forms/city-form.config';
 import { useCities } from '../hooks/use-cities';
@@ -32,6 +33,7 @@ export function CitiesTablePage({
 }) {
   const [dialogOpen, setDialogOpen] = useState({ createOpen: false, editOpen: false });
   const [editing, setEditing] = useState<CityRow | null>(null);
+  const [deleteTarget, setDeleteTarget] = useState<CityRow | null>(null);
   const { pending, create, update, remove } = useCities();
 
   const router = useRouter();
@@ -76,11 +78,7 @@ export function CitiesTablePage({
               size="icon"
               variant="ghost"
               className="h-8 w-8"
-              onClick={() => {
-                if (confirm(`¿Eliminar "${row.original.name}"?`)) {
-                  remove(row.original.id, () => {});
-                }
-              }}
+              onClick={() => setDeleteTarget(row.original)}
             >
               <Trash2 className="h-4 w-4 text-destructive" />
             </Button>
@@ -144,6 +142,19 @@ export function CitiesTablePage({
             setEditing(null);
           })
         }
+      />
+
+      <ConfirmDialog
+        open={!!deleteTarget}
+        onOpenChange={(open) => !open && setDeleteTarget(null)}
+        title={`¿Eliminar "${deleteTarget?.name}"?`}
+        confirmLabel="Eliminar"
+        variant="destructive"
+        loading={pending}
+        onConfirm={() => {
+          if (!deleteTarget) return;
+          remove(deleteTarget.id, () => setDeleteTarget(null));
+        }}
       />
     </div>
   );

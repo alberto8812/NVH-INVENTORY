@@ -26,11 +26,19 @@ const styles = StyleSheet.create({
     fontSize: 9.5,
     color: INK,
     backgroundColor: WHITE,
+    // Page-level padding repeats on every page react-pdf breaks content onto —
+    // Views only apply their own top/bottom padding once, at the true start/end
+    // of their content, so this is what guarantees a consistent margin after
+    // a page break. headerBand cancels it via a negative marginTop to keep its
+    // full-bleed look on page 1.
+    paddingTop: 36,
+    paddingBottom: 36,
   },
 
   // ── Header band ──────────────────────────────────────────────────────────
   headerBand: {
     backgroundColor: NAVY,
+    marginTop: -36,
     paddingTop: 28,
     paddingBottom: 22,
     paddingLeft: 36,

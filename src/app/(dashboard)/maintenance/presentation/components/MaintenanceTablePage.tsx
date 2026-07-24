@@ -12,6 +12,7 @@ import { Show } from '@/components/show/Show.component';
 import { KpiCard } from '@/app/(dashboard)/analytics/presentation/components/KpiCard';
 import { maintenanceColumns } from './columns-maintenance';
 import { CrudFormDialog } from '@/shared/presentation/components/form-builder/CrudFormDialog';
+import { ConfirmDialog } from '@/shared/presentation/components/ConfirmDialog';
 import { buildMaintenanceFormConfig } from '../forms/maintenance-form.config';
 import { useMaintenances } from '../hooks/use-maintenances';
 import type { MaintenanceRow, MaintenanceType, CreateMaintenanceDTO, UpdateMaintenanceDTO, MaintenanceStats, PendingMaintenanceRow } from '../dto/maintenance.dto';
@@ -48,6 +49,7 @@ export function MaintenanceTablePage({
   const [createOpen, setCreateOpen] = useState(false);
   const [editRow, setEditRow] = useState<MaintenanceRow | null>(null);
   const [activeModal, setActiveModal] = useState<KpiModalType>(null);
+  const [deleteTarget, setDeleteTarget] = useState<MaintenanceRow | null>(null);
   const formConfig = buildMaintenanceFormConfig();
   const router = useRouter();
   const pathname = usePathname();
@@ -96,11 +98,7 @@ export function MaintenanceTablePage({
                 variant="ghost"
                 className="h-8 w-8"
                 title="Eliminar mantenimiento"
-                onClick={() => {
-                  if (confirm('¿Eliminar este registro de mantenimiento?')) {
-                    remove(row.original.id, () => {});
-                  }
-                }}
+                onClick={() => setDeleteTarget(row.original)}
               >
                 <Trash2 className="h-4 w-4 text-destructive" />
               </Button>
@@ -278,6 +276,19 @@ export function MaintenanceTablePage({
           }
         />
       )}
+
+      <ConfirmDialog
+        open={!!deleteTarget}
+        onOpenChange={(open) => !open && setDeleteTarget(null)}
+        title="¿Eliminar este registro de mantenimiento?"
+        confirmLabel="Eliminar"
+        variant="destructive"
+        loading={pending}
+        onConfirm={() => {
+          if (!deleteTarget) return;
+          remove(deleteTarget.id, () => setDeleteTarget(null));
+        }}
+      />
 
       {/* KPI detail modal */}
       {stats && (
