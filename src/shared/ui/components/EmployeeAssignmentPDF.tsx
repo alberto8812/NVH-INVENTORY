@@ -222,6 +222,26 @@ const styles = StyleSheet.create({
     color: '#78350f',
     lineHeight: 1.55,
   },
+  clauseItem: { marginBottom: 9 },
+  clauseItemLast: { marginBottom: 0 },
+  clauseTitle: {
+    fontSize: 8.5,
+    fontFamily: 'Poppins-Bold',
+    color: '#78350f',
+    marginBottom: 3,
+  },
+  clauseParagraph: {
+    fontSize: 8.5,
+    color: '#78350f',
+    lineHeight: 1.55,
+    marginBottom: 3,
+  },
+  clauseParagraphLast: {
+    fontSize: 8.5,
+    color: '#78350f',
+    lineHeight: 1.55,
+    marginBottom: 0,
+  },
 
   // ── Signatures ────────────────────────────────────────────────────────────
   signRow: {
@@ -278,6 +298,81 @@ const styles = StyleSheet.create({
 interface EmployeeAssignmentPDFProps {
   data: EmployeeAssignmentReportData;
 }
+
+const CLAUSES: { title: string; paragraphs: string[] }[] = [
+  {
+    title: 'Constancia de entrega',
+    paragraphs: [
+      'Mediante la presente acta se deja constancia de la entrega de los equipos, herramientas, accesorios, dispositivos, licencias, documentos y demás bienes de propiedad de NOVAHOLD S.A.S., necesarios para el desarrollo de las funciones laborales asignadas.',
+      'El trabajador declara haber recibido los bienes anteriormente relacionados en adecuado estado de funcionamiento, salvo las observaciones consignadas expresamente en este documento.',
+    ],
+  },
+  {
+    title: '2. Destinación exclusiva para actividades laborales',
+    paragraphs: [
+      'El trabajador se compromete a utilizar los bienes entregados exclusivamente para el desempeño de las funciones propias de su cargo y demás actividades autorizadas por NOVAHOLD S.A.S., actuando con la debida diligencia, cuidado y responsabilidad.',
+      'Queda prohibido destinar los bienes a actividades ilícitas, personales no autorizadas o cualquier uso que pueda afectar su integridad, funcionamiento, seguridad o disponibilidad.',
+    ],
+  },
+  {
+    title: '3. Obligación de custodia y conservación',
+    paragraphs: [
+      'El trabajador será responsable de la adecuada custodia, conservación, protección y uso de los bienes entregados durante el tiempo en que permanezcan bajo su tenencia.',
+      'Asimismo, se compromete a:',
+      'a) Mantener los equipos en buen estado de funcionamiento y limpieza.',
+      'b) Adoptar las medidas razonables de seguridad física y digital para evitar pérdidas, daños, alteraciones, accesos no autorizados o usos indebidos.',
+      'c) Informar de manera inmediata a NOVAHOLD S.A.S. cualquier daño, falla, pérdida, hurto, incidente de seguridad o situación que pueda afectar los bienes entregados.',
+      'd) No realizar modificaciones, reparaciones, instalaciones de software o cambios de configuración sin autorización previa de NOVAHOLD S.A.S. o del área responsable.',
+    ],
+  },
+  {
+    title: '4. Responsabilidad por pérdida, daño o uso indebido',
+    paragraphs: [
+      'En caso de pérdida, daño o deterioro atribuible a dolo, culpa grave o incumplimiento de las instrucciones impartidas por NOVAHOLD S.A.S., el trabajador podrá ser sujeto de las acciones disciplinarias, laborales, civiles o legales que correspondan, de conformidad con la legislación colombiana vigente.',
+      'En todo caso, cualquier deducción, compensación o descuento sobre salarios o prestaciones sociales requerirá la autorización previa, expresa y escrita del trabajador o la correspondiente decisión judicial, de conformidad con la normatividad laboral colombiana.',
+    ],
+  },
+  {
+    title: '5. Seguridad de la información y confidencialidad',
+    paragraphs: [
+      'Cuando los bienes entregados permitan el acceso a información corporativa, bases de datos, plataformas tecnológicas, correos electrónicos, archivos físicos o digitales y demás activos de información de NOVAHOLD S.A.S., el trabajador se obliga a:',
+      'a) Mantener la confidencialidad de la información a la que tenga acceso.',
+      'b) No divulgar, copiar, transferir o reproducir información sin autorización.',
+      'c) Proteger credenciales, contraseñas y mecanismos de autenticación.',
+      'd) Cumplir las políticas de seguridad de la información, protección de datos personales y ciberseguridad establecidas por NOVAHOLD S.A.S.',
+      'Estas obligaciones permanecerán vigentes incluso después de la terminación de la relación laboral.',
+    ],
+  },
+  {
+    title: '6. Inspección y verificación',
+    paragraphs: [
+      'NOVAHOLD S.A.S. podrá verificar en cualquier momento el estado, ubicación y uso adecuado de los bienes entregados, así como requerir inventarios, reportes o evidencias de su conservación, respetando los derechos fundamentales del trabajador y la legislación aplicable.',
+    ],
+  },
+  {
+    title: '7. Devolución de bienes',
+    paragraphs: [
+      'El trabajador se obliga a devolver la totalidad de los bienes entregados en los siguientes eventos:',
+      'a) Terminación del contrato de trabajo por cualquier causa.',
+      'b) Cambio de cargo cuando así lo requiera NOVAHOLD S.A.S.',
+      'c) Solicitud expresa de devolución por parte de la compañía.',
+      'La devolución deberá realizarse junto con sus accesorios, claves, dispositivos de seguridad, cargadores, licencias, documentos y demás elementos asociados.',
+    ],
+  },
+  {
+    title: '8. Estado de devolución',
+    paragraphs: [
+      'Los bienes deberán ser devueltos en condiciones normales de uso, considerando el desgaste natural derivado de su utilización adecuada. NOVAHOLD S.A.S. verificará el estado de los bienes al momento de su entrega.',
+    ],
+  },
+  {
+    title: '9. Aceptación',
+    paragraphs: [
+      'El trabajador manifiesta haber recibido los bienes descritos en esta acta y declara conocer y aceptar las obligaciones aquí contenidas, así como las políticas internas de NOVAHOLD S.A.S. relacionadas con el uso de equipos, herramientas, activos tecnológicos, seguridad de la información y protección de datos.',
+      'Para constancia se firma en dos ejemplares del mismo tenor.',
+    ],
+  },
+];
 
 export function EmployeeAssignmentPDF({ data }: EmployeeAssignmentPDFProps) {
   const { employee, assignments, generatedAt } = data;
@@ -416,15 +511,26 @@ export function EmployeeAssignmentPDF({ data }: EmployeeAssignmentPDFProps) {
               <Text style={styles.sectionTitle}>Declaración de responsabilidad</Text>
             </View>
             <View style={styles.declarationBox}>
-              <Text style={styles.declarationText}>
-                Yo, {employee.fullName}, declaro haber recibido los equipos tecnológicos
-                listados en el presente documento en buen estado de funcionamiento. Me
-                comprometo a hacer un uso adecuado de los mismos, a mantenerlos bajo mi
-                custodia y responsabilidad, y a devolverlos en las mismas condiciones al
-                área de Tecnología cuando me sea requerido o al momento de finalizar mi
-                vinculación con la organización. El daño, pérdida o mal uso de los equipos
-                podrá generar las responsabilidades legales y disciplinarias correspondientes.
-              </Text>
+              {CLAUSES.map((clause, ci) => (
+                <View
+                  key={ci}
+                  style={ci < CLAUSES.length - 1 ? styles.clauseItem : styles.clauseItemLast}
+                >
+                  <Text style={styles.clauseTitle}>{clause.title}</Text>
+                  {clause.paragraphs.map((p, pi) => (
+                    <Text
+                      key={pi}
+                      style={
+                        pi < clause.paragraphs.length - 1
+                          ? styles.clauseParagraph
+                          : styles.clauseParagraphLast
+                      }
+                    >
+                      {p}
+                    </Text>
+                  ))}
+                </View>
+              ))}
             </View>
           </View>
 
