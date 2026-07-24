@@ -215,7 +215,12 @@ const styles = StyleSheet.create({
   empty: { color: INK_MUTED, fontStyle: 'italic', fontSize: 9 },
 
   // ── Declaration ───────────────────────────────────────────────────────────
-  declarationBox: {
+  // Each clause is its own bordered card (rather than one giant box wrapping
+  // all clauses) so a page break can only ever fall in the gap *between*
+  // cards — never inside one, and never leaving an orphaned block of
+  // background color hanging in empty space below a card that jumped to the
+  // next page.
+  clauseCard: {
     backgroundColor: '#fffbeb',
     border: `1px solid #fde68a`,
     borderLeft: `3px solid #f59e0b`,
@@ -224,14 +229,24 @@ const styles = StyleSheet.create({
     paddingBottom: 10,
     paddingLeft: 12,
     paddingRight: 12,
+    marginBottom: 8,
+  },
+  clauseCardLast: {
+    backgroundColor: '#fffbeb',
+    border: `1px solid #fde68a`,
+    borderLeft: `3px solid #f59e0b`,
+    borderRadius: 4,
+    paddingTop: 10,
+    paddingBottom: 10,
+    paddingLeft: 12,
+    paddingRight: 12,
+    marginBottom: 0,
   },
   declarationText: {
     fontSize: 8.5,
     color: '#78350f',
     lineHeight: 1.55,
   },
-  clauseItem: { marginBottom: 9 },
-  clauseItemLast: { marginBottom: 0 },
   clauseTitle: {
     fontSize: 8.5,
     fontFamily: 'Poppins-Bold',
@@ -518,29 +533,27 @@ export function EmployeeAssignmentPDF({ data }: EmployeeAssignmentPDFProps) {
               <View style={styles.sectionAccentBar} />
               <Text style={styles.sectionTitle}>Declaración de responsabilidad</Text>
             </View>
-            <View style={styles.declarationBox}>
-              {CLAUSES.map((clause, ci) => (
-                <View
-                  key={ci}
-                  wrap={false}
-                  style={ci < CLAUSES.length - 1 ? styles.clauseItem : styles.clauseItemLast}
-                >
-                  <Text style={styles.clauseTitle}>{clause.title}</Text>
-                  {clause.paragraphs.map((p, pi) => (
-                    <Text
-                      key={pi}
-                      style={
-                        pi < clause.paragraphs.length - 1
-                          ? styles.clauseParagraph
-                          : styles.clauseParagraphLast
-                      }
-                    >
-                      {p}
-                    </Text>
-                  ))}
-                </View>
-              ))}
-            </View>
+            {CLAUSES.map((clause, ci) => (
+              <View
+                key={ci}
+                wrap={false}
+                style={ci < CLAUSES.length - 1 ? styles.clauseCard : styles.clauseCardLast}
+              >
+                <Text style={styles.clauseTitle}>{clause.title}</Text>
+                {clause.paragraphs.map((p, pi) => (
+                  <Text
+                    key={pi}
+                    style={
+                      pi < clause.paragraphs.length - 1
+                        ? styles.clauseParagraph
+                        : styles.clauseParagraphLast
+                    }
+                  >
+                    {p}
+                  </Text>
+                ))}
+              </View>
+            ))}
           </View>
 
           {/* Firmas */}
