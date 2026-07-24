@@ -9,6 +9,7 @@ import { MainDataTable } from '@/components/tables/MainTable';
 import { TablePageToolbar } from '@/components/dashboard/TablePageToolbar';
 import { Show } from '@/components/show/Show.component';
 import { CrudFormDialog } from '@/shared/presentation/components/form-builder/CrudFormDialog';
+import { ConfirmDialog } from '@/shared/presentation/components/ConfirmDialog';
 import { ExcelImportDialog } from '@/shared/excel-import/components/ExcelImportDialog';
 import { categoriesColumns } from './columns-categories';
 import { buildCategoryFormConfig } from '../forms/category-form.config';
@@ -35,6 +36,7 @@ export function CategoriesTablePage({
   const [dialogOpen, setDialogOpen] = useState({ createOpen: false, editOpen: false });
   const [importOpen, setImportOpen] = useState(false);
   const [editing, setEditing] = useState<CategoryRow | null>(null);
+  const [deleteTarget, setDeleteTarget] = useState<CategoryRow | null>(null);
   const { pending, create, update, remove } = useCategories();
 
   const router = useRouter();
@@ -83,11 +85,7 @@ export function CategoriesTablePage({
               size="icon"
               variant="ghost"
               className="h-8 w-8"
-              onClick={() => {
-                if (confirm(`¿Eliminar "${row.original.name}"?`)) {
-                  remove(row.original.id, () => {});
-                }
-              }}
+              onClick={() => setDeleteTarget(row.original)}
             >
               <Trash2 className="h-4 w-4 text-destructive" />
             </Button>
@@ -179,6 +177,19 @@ export function CategoriesTablePage({
         title="Importar categorías"
         onSuccess={() => {
           router.refresh();
+        }}
+      />
+
+      <ConfirmDialog
+        open={!!deleteTarget}
+        onOpenChange={(open) => !open && setDeleteTarget(null)}
+        title={`¿Eliminar "${deleteTarget?.name}"?`}
+        confirmLabel="Eliminar"
+        variant="destructive"
+        loading={pending}
+        onConfirm={() => {
+          if (!deleteTarget) return;
+          remove(deleteTarget.id, () => setDeleteTarget(null));
         }}
       />
     </div>
