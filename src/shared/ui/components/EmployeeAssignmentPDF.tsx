@@ -514,6 +514,7 @@ export function EmployeeAssignmentPDF({ data }: EmployeeAssignmentPDFProps) {
               {CLAUSES.map((clause, ci) => (
                 <View
                   key={ci}
+                  wrap={false}
                   style={ci < CLAUSES.length - 1 ? styles.clauseItem : styles.clauseItemLast}
                 >
                   <Text style={styles.clauseTitle}>{clause.title}</Text>
