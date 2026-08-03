@@ -1,0 +1,587 @@
+import { Document, Page, Text, View, StyleSheet } from '@react-pdf/renderer';
+import '@/shared/pdf/fonts';
+import type { EmployeeAssignmentReportData } from '@/app/(dashboard)/employees/actions';
+
+const STATUS_LABELS: Record<string, string> = {
+  GOOD: 'Bueno',
+  REGULAR: 'Regular',
+  BAD: 'Malo',
+  DAMAGED: 'Dañado',
+  RETIRED: 'Dado de baja',
+};
+
+const NAVY = '#00365f';
+const TEAL = '#17af95';
+const NAVY_LIGHT = '#e8f0f7';
+const TEAL_LIGHT = '#e8f8f5';
+const INK = '#111827';
+const INK_SECONDARY = '#4b5563';
+const INK_MUTED = '#9ca3af';
+const BORDER = '#e5e7eb';
+const WHITE = '#ffffff';
+
+const styles = StyleSheet.create({
+  page: {
+    fontFamily: 'Poppins',
+    fontSize: 9.5,
+    color: INK,
+    backgroundColor: WHITE,
+    // Page-level padding repeats on every page react-pdf breaks content onto —
+    // Views only apply their own top/bottom padding once, at the true start/end
+    // of their content, so this is what guarantees a consistent margin after
+    // a page break. headerBand cancels it via a negative marginTop to keep its
+    // full-bleed look on page 1.
+    paddingTop: 36,
+    paddingBottom: 36,
+  },
+
+  // ── Header band ──────────────────────────────────────────────────────────
+  headerBand: {
+    backgroundColor: NAVY,
+    marginTop: -36,
+    paddingTop: 28,
+    paddingBottom: 22,
+    paddingLeft: 36,
+    paddingRight: 36,
+  },
+  headerOrg: {
+    fontSize: 7.5,
+    color: TEAL,
+    letterSpacing: 2,
+    textTransform: 'uppercase',
+    marginBottom: 6,
+  },
+  headerTitle: {
+    fontSize: 20,
+    fontFamily: 'Poppins-Bold',
+    color: WHITE,
+    letterSpacing: -0.3,
+    marginBottom: 8,
+  },
+  headerMeta: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+  },
+  headerMetaChip: {
+    backgroundColor: 'rgba(255,255,255,0.10)',
+    borderRadius: 3,
+    paddingTop: 2,
+    paddingBottom: 2,
+    paddingLeft: 7,
+    paddingRight: 7,
+  },
+  headerMetaText: {
+    fontSize: 8,
+    color: 'rgba(255,255,255,0.75)',
+  },
+
+  // ── Teal accent line ──────────────────────────────────────────────────────
+  accentLine: {
+    height: 3,
+    backgroundColor: TEAL,
+  },
+
+  // ── Body ──────────────────────────────────────────────────────────────────
+  body: {
+    paddingTop: 24,
+    paddingBottom: 32,
+    paddingLeft: 36,
+    paddingRight: 36,
+  },
+
+  // ── Section ───────────────────────────────────────────────────────────────
+  section: { marginBottom: 20 },
+  sectionHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 10,
+  },
+  sectionAccentBar: {
+    width: 3,
+    height: 13,
+    backgroundColor: TEAL,
+    marginRight: 7,
+    borderRadius: 1.5,
+  },
+  sectionTitle: {
+    fontSize: 8,
+    fontFamily: 'Poppins-Bold',
+    color: NAVY,
+    letterSpacing: 1.2,
+    textTransform: 'uppercase',
+  },
+
+  // ── Employee data grid ────────────────────────────────────────────────────
+  dataGrid: {
+    backgroundColor: '#f9fafb',
+    border: `1px solid ${BORDER}`,
+    borderRadius: 4,
+    paddingTop: 12,
+    paddingBottom: 12,
+    paddingLeft: 16,
+    paddingRight: 16,
+  },
+  dataRow: {
+    flexDirection: 'row',
+    marginBottom: 6,
+  },
+  dataRowLast: {
+    flexDirection: 'row',
+    marginBottom: 0,
+  },
+  dataLabel: {
+    width: 100,
+    fontSize: 8.5,
+    color: INK_MUTED,
+    fontFamily: 'Poppins',
+  },
+  dataValue: {
+    flex: 1,
+    fontSize: 8.5,
+    color: INK,
+    fontFamily: 'Poppins-Bold',
+  },
+
+  // ── Asset table ───────────────────────────────────────────────────────────
+  tableContainer: {
+    border: `1px solid ${BORDER}`,
+    borderRadius: 4,
+    overflow: 'hidden',
+  },
+  tableHead: {
+    flexDirection: 'row',
+    backgroundColor: NAVY,
+    paddingTop: 7,
+    paddingBottom: 7,
+    paddingLeft: 10,
+    paddingRight: 10,
+  },
+  tableHeadCell: {
+    fontSize: 7.5,
+    fontFamily: 'Poppins-Bold',
+    color: WHITE,
+    letterSpacing: 0.5,
+  },
+  tableRow: {
+    flexDirection: 'row',
+    paddingTop: 6,
+    paddingBottom: 6,
+    paddingLeft: 10,
+    paddingRight: 10,
+  },
+  tableRowEven: {
+    backgroundColor: TEAL_LIGHT,
+  },
+  tableRowOdd: {
+    backgroundColor: WHITE,
+  },
+  tableRowBorder: {
+    borderBottom: `0.5px solid ${BORDER}`,
+  },
+  tableCell: {
+    fontSize: 8.5,
+    color: INK_SECONDARY,
+  },
+  tableCellCode: {
+    fontSize: 8,
+    fontFamily: 'Poppins-Bold',
+    color: NAVY,
+  },
+
+  // Column widths
+  cCode: { width: '22%' },
+  cDesc: { width: '30%' },
+  cSerial: { width: '20%' },
+  cStatus: { width: '14%' },
+  cDate: { width: '14%' },
+
+  // Status badge
+  statusBadge: {
+    backgroundColor: NAVY_LIGHT,
+    borderRadius: 2,
+    paddingTop: 1,
+    paddingBottom: 1,
+    paddingLeft: 4,
+    paddingRight: 4,
+    alignSelf: 'flex-start',
+  },
+  statusBadgeText: {
+    fontSize: 7.5,
+    color: NAVY,
+    fontFamily: 'Poppins-Bold',
+  },
+
+  empty: { color: INK_MUTED, fontStyle: 'italic', fontSize: 9 },
+
+  // ── Declaration ───────────────────────────────────────────────────────────
+  // Each clause is its own bordered card (rather than one giant box wrapping
+  // all clauses) so a page break can only ever fall in the gap *between*
+  // cards — never inside one, and never leaving an orphaned block of
+  // background color hanging in empty space below a card that jumped to the
+  // next page.
+  clauseCard: {
+    backgroundColor: '#fffbeb',
+    border: `1px solid #fde68a`,
+    borderLeft: `3px solid #f59e0b`,
+    borderRadius: 4,
+    paddingTop: 10,
+    paddingBottom: 10,
+    paddingLeft: 12,
+    paddingRight: 12,
+    marginBottom: 8,
+  },
+  clauseCardLast: {
+    backgroundColor: '#fffbeb',
+    border: `1px solid #fde68a`,
+    borderLeft: `3px solid #f59e0b`,
+    borderRadius: 4,
+    paddingTop: 10,
+    paddingBottom: 10,
+    paddingLeft: 12,
+    paddingRight: 12,
+    marginBottom: 0,
+  },
+  declarationText: {
+    fontSize: 8.5,
+    color: '#78350f',
+    lineHeight: 1.55,
+  },
+  clauseTitle: {
+    fontSize: 8.5,
+    fontFamily: 'Poppins-Bold',
+    color: '#78350f',
+    marginBottom: 3,
+  },
+  clauseParagraph: {
+    fontSize: 8.5,
+    color: '#78350f',
+    lineHeight: 1.55,
+    marginBottom: 3,
+  },
+  clauseParagraphLast: {
+    fontSize: 8.5,
+    color: '#78350f',
+    lineHeight: 1.55,
+    marginBottom: 0,
+  },
+
+  // ── Signatures ────────────────────────────────────────────────────────────
+  signRow: {
+    flexDirection: 'row',
+    marginTop: 32,
+    justifyContent: 'space-between',
+    gap: 24,
+  },
+  signBox: {
+    flex: 1,
+    borderTop: `2px solid ${NAVY}`,
+    paddingTop: 8,
+  },
+  signName: {
+    fontSize: 9,
+    fontFamily: 'Poppins-Bold',
+    color: INK,
+    marginBottom: 3,
+  },
+  signMeta: {
+    fontSize: 8,
+    color: INK_MUTED,
+    marginBottom: 2,
+  },
+  signField: {
+    fontSize: 8,
+    color: INK_SECONDARY,
+    borderBottom: `0.5px solid ${BORDER}`,
+    paddingBottom: 2,
+    marginBottom: 4,
+    marginTop: 8,
+  },
+
+  // ── Footer ────────────────────────────────────────────────────────────────
+  footer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    borderTop: `1px solid ${BORDER}`,
+    marginTop: 24,
+    paddingTop: 8,
+  },
+  footerText: {
+    fontSize: 7.5,
+    color: INK_MUTED,
+  },
+  footerBrand: {
+    fontSize: 7.5,
+    color: TEAL,
+    fontFamily: 'Poppins-Bold',
+  },
+});
+
+interface EmployeeReturnPDFProps {
+  data: EmployeeAssignmentReportData;
+}
+
+export const RETURN_CLAUSES: { title: string; paragraphs: string[] }[] = [
+  {
+    title: '1. Devolución de bienes',
+    paragraphs: [
+      'El trabajador manifiesta que hace entrega a NOVAHOLD S.A.S. de los equipos, herramientas, accesorios, dispositivos, licencias, documentos, credenciales, medios de acceso y demás bienes que le fueron asignados para el desarrollo de sus funciones laborales, de conformidad con el acta de entrega suscrita durante la vigencia de la relación laboral.',
+      'Los bienes devueltos corresponden a los siguientes:',
+      '[Listado de bienes — ver tabla de activos arriba]',
+    ],
+  },
+  {
+    title: '2. Verificación de estado',
+    paragraphs: [
+      'NOVAHOLD S.A.S. realiza la verificación física y funcional preliminar de los bienes entregados, dejando constancia de que:',
+      '☐ Los bienes fueron recibidos a satisfacción.',
+      '☐ Los bienes presentan las siguientes observaciones:',
+      '[Espacio para observaciones generales de la entrega]',
+      'Las partes reconocen que el desgaste normal derivado del uso adecuado de los bienes durante la relación laboral no constituye daño ni genera responsabilidad para el trabajador.',
+    ],
+  },
+  {
+    title: '3. Entrega de información y accesos',
+    paragraphs: [
+      'El trabajador declara haber entregado o puesto a disposición de NOVAHOLD S.A.S. toda la información, documentación, archivos, bases de datos, correos electrónicos, proyectos, desarrollos, claves, dispositivos de autenticación y demás elementos relacionados con las actividades desempeñadas durante la relación laboral.',
+      'Asimismo, manifiesta que no conserva copias físicas o digitales de información confidencial o reservada de NOVAHOLD S.A.S., salvo aquella cuya conservación sea exigida por disposición legal.',
+    ],
+  },
+  {
+    title: '4. Confidencialidad y protección de la información',
+    paragraphs: [
+      'El trabajador reconoce que las obligaciones de confidencialidad, reserva, protección de datos personales, seguridad de la información y protección de secretos empresariales asumidas durante la relación laboral continúan vigentes aun después de la terminación del contrato, de conformidad con la legislación colombiana aplicable y las políticas internas de NOVAHOLD S.A.S.',
+    ],
+  },
+  {
+    title: '5. Responsabilidad por daños, pérdidas o deterioros',
+    paragraphs: [
+      'El trabajador declara que los bienes objeto de la presente devolución fueron utilizados conforme a las obligaciones de custodia, conservación y uso establecidas por NOVAHOLD S.A.S.',
+      'En caso de que, durante la verificación de los bienes entregados o en revisiones técnicas posteriores, se evidencien daños, pérdidas, alteraciones, faltantes o deterioros atribuibles a conducta dolosa, culpa grave, uso indebido, negligencia o incumplimiento de las instrucciones impartidas por NOVAHOLD S.A.S., la compañía podrá adelantar las investigaciones internas correspondientes y ejercer las acciones disciplinarias, laborales, civiles o penales a que haya lugar, de conformidad con la legislación colombiana vigente.',
+      'La determinación de la responsabilidad del trabajador deberá estar debidamente soportada y respetar las garantías del debido proceso.',
+      'En ningún caso la existencia de daños, faltantes o deterioros facultará por sí sola a NOVAHOLD S.A.S. para efectuar descuentos, compensaciones o retenciones sobre salarios, prestaciones sociales, liquidaciones o cualquier otro derecho laboral, salvo autorización previa, expresa y escrita del trabajador o decisión de autoridad competente.',
+      'Cuando el trabajador reconozca expresamente su responsabilidad respecto de un daño o pérdida y manifieste voluntariamente su intención de asumir el costo correspondiente, las partes podrán suscribir un acuerdo independiente que establezca las condiciones de pago, respetando en todo caso la normativa laboral colombiana aplicable.',
+    ],
+  },
+  {
+    title: '6. Hallazgos posteriores a la devolución',
+    paragraphs: [
+      'La recepción de los bienes por parte de NOVAHOLD S.A.S. no implica aceptación definitiva de su estado técnico o funcional.',
+      'La compañía podrá realizar verificaciones físicas, técnicas, informáticas o de seguridad de la información dentro de los treinta (30) días calendario siguientes a la devolución, con el fin de identificar daños ocultos, alteraciones de configuración, eliminación no autorizada de información corporativa, instalación de software no autorizado, pérdida de activos de información o cualquier otra afectación no detectable razonablemente al momento de la entrega.',
+      'De evidenciarse alguna de estas situaciones y comprobarse que son atribuibles al trabajador por dolo o culpa grave, NOVAHOLD S.A.S. podrá ejercer las acciones legales correspondientes para obtener la reparación de los perjuicios ocasionados, conforme a la legislación colombiana vigente.',
+    ],
+  },
+  {
+    title: '7. Pendientes y faltantes',
+    paragraphs: [
+      'En caso de evidenciarse la ausencia de algún bien, accesorio o elemento asignado, se dejará constancia expresa de dicha situación en la presente acta:',
+      '[Espacio para anotar pendientes o faltantes]',
+      'La existencia de faltantes, daños o inconsistencias no autoriza por sí sola descuentos, retenciones o compensaciones sobre salarios, prestaciones sociales, liquidaciones o cualquier otra acreencia laboral, salvo autorización previa, expresa y escrita del trabajador o decisión de autoridad competente, de conformidad con la legislación laboral colombiana vigente.',
+    ],
+  },
+  {
+    title: '8. Paz y salvo respecto de bienes corporativos',
+    paragraphs: [
+      'Con la firma de la presente acta, NOVAHOLD S.A.S. deja constancia de la recepción de los bienes relacionados anteriormente, sin perjuicio de las verificaciones técnicas y administrativas posteriores que permitan establecer su estado de funcionamiento, integridad de la información o existencia de elementos pendientes de devolución.',
+      'La suscripción de este documento tiene efectos exclusivamente respecto de la devolución de bienes corporativos y no implica renuncia de derechos laborales, reconocimiento de obligaciones distintas de las aquí consignadas ni constituye paz y salvo general entre las partes.',
+    ],
+  },
+  {
+    title: '9. Firma y aceptación',
+    paragraphs: [
+      'Leída la presente acta y encontrándola conforme, las partes la suscriben en señal de aceptación.',
+    ],
+  },
+];
+
+export function EmployeeReturnPDF({ data }: EmployeeReturnPDFProps) {
+  const { employee, assignments, generatedAt } = data;
+
+  const generatedDate = new Date(generatedAt).toLocaleDateString('es-CO', {
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric',
+  });
+
+  return (
+    <Document>
+      <Page size="A4" style={styles.page}>
+        {/* ── Header band ─────────────────────────────────────────────── */}
+        <View style={styles.headerBand}>
+          <Text style={styles.headerOrg}>Novahold · Gestión de Activos</Text>
+          <Text style={styles.headerTitle}>Acta de Devolución de Equipos</Text>
+          <View style={styles.headerMeta}>
+            <View style={styles.headerMetaChip}>
+              <Text style={styles.headerMetaText}>{employee.fullName}</Text>
+            </View>
+            <View style={styles.headerMetaChip}>
+              <Text style={styles.headerMetaText}>Generado {generatedDate}</Text>
+            </View>
+            <View style={styles.headerMetaChip}>
+              <Text style={styles.headerMetaText}>
+                {assignments.length} equipo{assignments.length !== 1 ? 's' : ''} a devolver
+              </Text>
+            </View>
+          </View>
+        </View>
+
+        {/* ── Teal accent ─────────────────────────────────────────────── */}
+        <View style={styles.accentLine} />
+
+        {/* ── Body ────────────────────────────────────────────────────── */}
+        <View style={styles.body}>
+          {/* Datos del empleado */}
+          <View style={styles.section}>
+            <View style={styles.sectionHeader}>
+              <View style={styles.sectionAccentBar} />
+              <Text style={styles.sectionTitle}>Datos del empleado</Text>
+            </View>
+            <View style={styles.dataGrid}>
+              <View style={styles.dataRow}>
+                <Text style={styles.dataLabel}>Nombre</Text>
+                <Text style={styles.dataValue}>{employee.fullName}</Text>
+              </View>
+              <View style={styles.dataRow}>
+                <Text style={styles.dataLabel}>Cargo</Text>
+                <Text style={styles.dataValue}>{employee.position ?? '—'}</Text>
+              </View>
+              <View style={styles.dataRow}>
+                <Text style={styles.dataLabel}>Email</Text>
+                <Text style={styles.dataValue}>{employee.email}</Text>
+              </View>
+              {employee.phone && (
+                <View style={styles.dataRow}>
+                  <Text style={styles.dataLabel}>Teléfono</Text>
+                  <Text style={styles.dataValue}>{employee.phone}</Text>
+                </View>
+              )}
+              <View style={styles.dataRow}>
+                <Text style={styles.dataLabel}>Departamento</Text>
+                <Text style={styles.dataValue}>{employee.departmentName ?? '—'}</Text>
+              </View>
+              <View style={styles.dataRow}>
+                <Text style={styles.dataLabel}>Sede</Text>
+                <Text style={styles.dataValue}>{employee.locationName ?? '—'}</Text>
+              </View>
+              <View style={styles.dataRowLast}>
+                <Text style={styles.dataLabel}>Ciudad</Text>
+                <Text style={styles.dataValue}>{employee.cityName ?? '—'}</Text>
+              </View>
+            </View>
+          </View>
+
+          {/* Equipos a devolver */}
+          <View style={styles.section}>
+            <View style={styles.sectionHeader}>
+              <View style={styles.sectionAccentBar} />
+              <Text style={styles.sectionTitle}>
+                Equipos a devolver ({assignments.length})
+              </Text>
+            </View>
+
+            {assignments.length === 0 ? (
+              <Text style={styles.empty}>Sin equipos asignados</Text>
+            ) : (
+              <View style={styles.tableContainer}>
+                <View style={styles.tableHead}>
+                  <Text style={[styles.tableHeadCell, styles.cCode]}>Código</Text>
+                  <Text style={[styles.tableHeadCell, styles.cDesc]}>Marca / Modelo</Text>
+                  <Text style={[styles.tableHeadCell, styles.cSerial]}>Serial</Text>
+                  <Text style={[styles.tableHeadCell, styles.cStatus]}>Estado</Text>
+                  <Text style={[styles.tableHeadCell, styles.cDate]}>Asignado</Text>
+                </View>
+                {assignments.map((a, i) => (
+                  <View
+                    key={i}
+                    style={[
+                      styles.tableRow,
+                      i % 2 === 0 ? styles.tableRowOdd : styles.tableRowEven,
+                      i < assignments.length - 1 ? styles.tableRowBorder : {},
+                    ]}
+                  >
+                    <Text style={[styles.tableCellCode, styles.cCode]}>
+                      {a.assetCode}
+                    </Text>
+                    <Text style={[styles.tableCell, styles.cDesc]}>
+                      {[a.brand, a.model].filter(Boolean).join(' ') || '—'}
+                    </Text>
+                    <Text style={[styles.tableCell, styles.cSerial]}>
+                      {a.serialNumber ?? '—'}
+                    </Text>
+                    <View style={styles.cStatus}>
+                      <View style={styles.statusBadge}>
+                        <Text style={styles.statusBadgeText}>
+                          {STATUS_LABELS[a.generalStatus] ?? a.generalStatus}
+                        </Text>
+                      </View>
+                    </View>
+                    <Text style={[styles.tableCell, styles.cDate]}>
+                      {new Date(a.assignedAt).toLocaleDateString('es-CO')}
+                    </Text>
+                  </View>
+                ))}
+              </View>
+            )}
+          </View>
+
+          {/* Declaración de devolución */}
+          <View style={styles.section}>
+            <View style={styles.sectionHeader}>
+              <View style={styles.sectionAccentBar} />
+              <Text style={styles.sectionTitle}>Declaración de devolución</Text>
+            </View>
+            {RETURN_CLAUSES.map((clause, ci) => (
+              <View
+                key={ci}
+                wrap={false}
+                style={ci < RETURN_CLAUSES.length - 1 ? styles.clauseCard : styles.clauseCardLast}
+              >
+                <Text style={styles.clauseTitle}>{clause.title}</Text>
+                {clause.paragraphs.map((p, pi) => (
+                  <Text
+                    key={pi}
+                    style={
+                      pi < clause.paragraphs.length - 1
+                        ? styles.clauseParagraph
+                        : styles.clauseParagraphLast
+                    }
+                  >
+                    {p}
+                  </Text>
+                ))}
+              </View>
+            ))}
+          </View>
+
+          {/* Firmas */}
+          <View style={styles.signRow}>
+            <View style={styles.signBox}>
+              <Text style={styles.signName}>{employee.fullName}</Text>
+              <Text style={styles.signMeta}>Empleado</Text>
+              <Text style={styles.signField}>C.C. ___________________________</Text>
+              <Text style={styles.signField}>Firma ___________________________</Text>
+              <Text style={styles.signField}>Fecha ___________________________</Text>
+            </View>
+            <View style={styles.signBox}>
+              <Text style={styles.signName}>Representante Novahold</Text>
+              <Text style={styles.signMeta}>Área de Tecnología</Text>
+              <Text style={styles.signField}>Nombre ___________________________</Text>
+              <Text style={styles.signField}>C.C. ___________________________</Text>
+              <Text style={styles.signField}>Firma ___________________________</Text>
+              <Text style={styles.signField}>Fecha ___________________________</Text>
+            </View>
+          </View>
+
+          {/* Footer */}
+          <View style={styles.footer}>
+            <Text style={styles.footerText}>
+              Documento generado el {generatedDate} · Sistema de Gestión de Inventario
+            </Text>
+            <Text style={styles.footerBrand}>NOVAHOLD</Text>
+          </View>
+        </View>
+      </Page>
+    </Document>
+  );
+}

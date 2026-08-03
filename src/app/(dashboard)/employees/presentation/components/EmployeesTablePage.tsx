@@ -3,8 +3,9 @@
 import { useMemo, useState } from 'react';
 import { useRouter, usePathname, useSearchParams } from 'next/navigation';
 import type { ColumnDef } from '@tanstack/react-table';
-import { Pencil, PowerOff, Trash2, Plus, FileSpreadsheet, Users, FileText } from 'lucide-react';
+import { Pencil, PowerOff, Trash2, Plus, FileSpreadsheet, Users, FileText, Undo2 } from 'lucide-react';
 import { toast } from 'sonner';
+import { pdf } from '@react-pdf/renderer';
 import { Button } from '@/components/ui/button';
 import { MainDataTable } from '@/components/tables/MainTable';
 import { TablePageToolbar } from '@/components/dashboard/TablePageToolbar';
@@ -12,10 +13,12 @@ import { Show } from '@/components/show/Show.component';
 import { CrudFormDialog } from '@/shared/presentation/components/form-builder/CrudFormDialog';
 import { ConfirmDialog } from '@/shared/presentation/components/ConfirmDialog';
 import { ExcelImportDialog } from '@/shared/excel-import/components/ExcelImportDialog';
+import { EmployeeReturnPDF } from '@/shared/ui/components/EmployeeReturnPDF';
 import { employeeColumns } from './columns-employees';
 import { buildEmployeeFormConfig } from '../forms/employee-form.config';
 import { useEmployees } from '../hooks/use-employees';
 import { EmployeeActaDownload } from './EmployeeActaDownload';
+import { getEmployeeReturnReportAction } from '../../actions';
 import type { EmployeeRow, CreateEmployeeDTO, UpdateEmployeeDTO } from '../dto/employee.dto';
 import type { PageInfo } from '@/shared/types/pagination';
 
@@ -48,6 +51,7 @@ export function EmployeesTablePage({
   const [editing, setEditing] = useState<EmployeeRow | null>(null);
   const [downloadId, setDownloadId] = useState<string | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<EmployeeRow | null>(null);
+  const [returnDownloadInFlight, setReturnDownloadInFlight] = useState<string | null>(null);
 
   const router = useRouter();
   const pathname = usePathname();
@@ -61,6 +65,37 @@ export function EmployeesTablePage({
       else next.set(k, String(v));
     }
     router.replace(`${pathname}?${next.toString()}`);
+  }
+
+  // Imperative one-shot action (fetch report -> build PDF blob -> trigger
+  // browser download). This is deliberately NOT a mount-effect component
+  // like EmployeeActaDownload — there is no render-time data fetch to
+  // synchronize, so useEffect/component-mount indirection would be
+  // unnecessary ceremony for a plain click handler. A local in-flight guard
+  // prevents double-clicks from firing two downloads concurrently.
+  async function handleDownloadReturnActa(employeeId: string) {
+    if (returnDownloadInFlight) return;
+    setReturnDownloadInFlight(employeeId);
+    try {
+      const result = await getEmployeeReturnReportAction(employeeId);
+      if (!result.ok) {
+        toast.error('Error al generar el acta de devolución');
+        return;
+      }
+      if (result.data.assignments.length === 0) {
+        toast.error('Este empleado no tiene asignaciones activas');
+        return;
+      }
+      const blob = await pdf(<EmployeeReturnPDF data={result.data} />).toBlob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `acta-devolucion-${employeeId.slice(0, 8)}.pdf`;
+      a.click();
+      URL.revokeObjectURL(url);
+    } finally {
+      setReturnDownloadInFlight(null);
+    }
   }
 
   const columns: ColumnDef<EmployeeRow>[] = useMemo(
@@ -113,21 +148,33 @@ export function EmployeesTablePage({
               </>
             )}
             {row.original.assignmentsCount > 0 && (
-              <Button
-                size="icon"
-                variant="ghost"
-                className="h-8 w-8"
-                title="Descargar acta de asignación"
-                onClick={() => setDownloadId(row.original.id)}
-              >
-                <FileText className="h-4 w-4" />
-              </Button>
+              <>
+                <Button
+                  size="icon"
+                  variant="ghost"
+                  className="h-8 w-8"
+                  title="Descargar acta de asignación"
+                  onClick={() => setDownloadId(row.original.id)}
+                >
+                  <FileText className="h-4 w-4" />
+                </Button>
+                <Button
+                  size="icon"
+                  variant="ghost"
+                  className="h-8 w-8"
+                  title="Descargar acta de devolución"
+                  disabled={returnDownloadInFlight === row.original.id}
+                  onClick={() => handleDownloadReturnActa(row.original.id)}
+                >
+                  <Undo2 className="h-4 w-4" />
+                </Button>
+              </>
             )}
           </div>
         ),
       },
     ],
-    [canWrite, deactivate, remove, downloadId],
+    [canWrite, deactivate, remove, downloadId, returnDownloadInFlight],
   );
 
   function onNextPage() {
