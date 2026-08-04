@@ -1,28 +1,28 @@
-import { Document, Page, Text, View, StyleSheet } from '@react-pdf/renderer';
-import '@/shared/pdf/fonts';
-import type { EmployeeAssignmentReportData } from '@/app/(dashboard)/employees/actions';
+import { Document, Page, Text, View, StyleSheet } from "@react-pdf/renderer";
+import "@/shared/pdf/fonts";
+import type { EmployeeAssignmentReportData } from "@/app/(dashboard)/employees/actions";
 
 const STATUS_LABELS: Record<string, string> = {
-  GOOD: 'Bueno',
-  REGULAR: 'Regular',
-  BAD: 'Malo',
-  DAMAGED: 'Dañado',
-  RETIRED: 'Dado de baja',
+  GOOD: "Bueno",
+  REGULAR: "Regular",
+  BAD: "Malo",
+  DAMAGED: "Dañado",
+  RETIRED: "Dado de baja",
 };
 
-const NAVY = '#00365f';
-const TEAL = '#17af95';
-const NAVY_LIGHT = '#e8f0f7';
-const TEAL_LIGHT = '#e8f8f5';
-const INK = '#111827';
-const INK_SECONDARY = '#4b5563';
-const INK_MUTED = '#9ca3af';
-const BORDER = '#e5e7eb';
-const WHITE = '#ffffff';
+const NAVY = "#00365f";
+const TEAL = "#17af95";
+const NAVY_LIGHT = "#e8f0f7";
+const TEAL_LIGHT = "#e8f8f5";
+const INK = "#111827";
+const INK_SECONDARY = "#4b5563";
+const INK_MUTED = "#9ca3af";
+const BORDER = "#e5e7eb";
+const WHITE = "#ffffff";
 
 const styles = StyleSheet.create({
   page: {
-    fontFamily: 'Poppins',
+    fontFamily: "Poppins",
     fontSize: 9.5,
     color: INK,
     backgroundColor: WHITE,
@@ -48,23 +48,23 @@ const styles = StyleSheet.create({
     fontSize: 7.5,
     color: TEAL,
     letterSpacing: 2,
-    textTransform: 'uppercase',
+    textTransform: "uppercase",
     marginBottom: 6,
   },
   headerTitle: {
     fontSize: 20,
-    fontFamily: 'Poppins-Bold',
+    fontFamily: "Poppins-Bold",
     color: WHITE,
     letterSpacing: -0.3,
     marginBottom: 8,
   },
   headerMeta: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     gap: 12,
   },
   headerMetaChip: {
-    backgroundColor: 'rgba(255,255,255,0.10)',
+    backgroundColor: "rgba(255,255,255,0.10)",
     borderRadius: 3,
     paddingTop: 2,
     paddingBottom: 2,
@@ -73,7 +73,7 @@ const styles = StyleSheet.create({
   },
   headerMetaText: {
     fontSize: 8,
-    color: 'rgba(255,255,255,0.75)',
+    color: "rgba(255,255,255,0.75)",
   },
 
   // ── Teal accent line ──────────────────────────────────────────────────────
@@ -93,8 +93,8 @@ const styles = StyleSheet.create({
   // ── Section ───────────────────────────────────────────────────────────────
   section: { marginBottom: 20 },
   sectionHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     marginBottom: 10,
   },
   sectionAccentBar: {
@@ -106,15 +106,15 @@ const styles = StyleSheet.create({
   },
   sectionTitle: {
     fontSize: 8,
-    fontFamily: 'Poppins-Bold',
+    fontFamily: "Poppins-Bold",
     color: NAVY,
     letterSpacing: 1.2,
-    textTransform: 'uppercase',
+    textTransform: "uppercase",
   },
 
   // ── Employee data grid ────────────────────────────────────────────────────
   dataGrid: {
-    backgroundColor: '#f9fafb',
+    backgroundColor: "#f9fafb",
     border: `1px solid ${BORDER}`,
     borderRadius: 4,
     paddingTop: 12,
@@ -123,34 +123,34 @@ const styles = StyleSheet.create({
     paddingRight: 16,
   },
   dataRow: {
-    flexDirection: 'row',
+    flexDirection: "row",
     marginBottom: 6,
   },
   dataRowLast: {
-    flexDirection: 'row',
+    flexDirection: "row",
     marginBottom: 0,
   },
   dataLabel: {
     width: 100,
     fontSize: 8.5,
     color: INK_MUTED,
-    fontFamily: 'Poppins',
+    fontFamily: "Poppins",
   },
   dataValue: {
     flex: 1,
     fontSize: 8.5,
     color: INK,
-    fontFamily: 'Poppins-Bold',
+    fontFamily: "Poppins-Bold",
   },
 
   // ── Asset table ───────────────────────────────────────────────────────────
   tableContainer: {
     border: `1px solid ${BORDER}`,
     borderRadius: 4,
-    overflow: 'hidden',
+    overflow: "hidden",
   },
   tableHead: {
-    flexDirection: 'row',
+    flexDirection: "row",
     backgroundColor: NAVY,
     paddingTop: 7,
     paddingBottom: 7,
@@ -159,12 +159,12 @@ const styles = StyleSheet.create({
   },
   tableHeadCell: {
     fontSize: 7.5,
-    fontFamily: 'Poppins-Bold',
+    fontFamily: "Poppins-Bold",
     color: WHITE,
     letterSpacing: 0.5,
   },
   tableRow: {
-    flexDirection: 'row',
+    flexDirection: "row",
     paddingTop: 6,
     paddingBottom: 6,
     paddingLeft: 10,
@@ -185,16 +185,16 @@ const styles = StyleSheet.create({
   },
   tableCellCode: {
     fontSize: 8,
-    fontFamily: 'Poppins-Bold',
+    fontFamily: "Poppins-Bold",
     color: NAVY,
   },
 
   // Column widths
-  cCode: { width: '22%' },
-  cDesc: { width: '30%' },
-  cSerial: { width: '20%' },
-  cStatus: { width: '14%' },
-  cDate: { width: '14%' },
+  cCode: { width: "22%" },
+  cDesc: { width: "30%" },
+  cSerial: { width: "20%" },
+  cStatus: { width: "14%" },
+  cDate: { width: "14%" },
 
   // Status badge
   statusBadge: {
@@ -204,15 +204,15 @@ const styles = StyleSheet.create({
     paddingBottom: 1,
     paddingLeft: 4,
     paddingRight: 4,
-    alignSelf: 'flex-start',
+    alignSelf: "flex-start",
   },
   statusBadgeText: {
     fontSize: 7.5,
     color: NAVY,
-    fontFamily: 'Poppins-Bold',
+    fontFamily: "Poppins-Bold",
   },
 
-  empty: { color: INK_MUTED, fontStyle: 'italic', fontSize: 9 },
+  empty: { color: INK_MUTED, fontStyle: "italic", fontSize: 9 },
 
   // ── Declaration ───────────────────────────────────────────────────────────
   // Each clause is its own bordered card (rather than one giant box wrapping
@@ -221,7 +221,7 @@ const styles = StyleSheet.create({
   // background color hanging in empty space below a card that jumped to the
   // next page.
   clauseCard: {
-    backgroundColor: '#fffbeb',
+    backgroundColor: "#fffbeb",
     border: `1px solid #fde68a`,
     borderLeft: `3px solid #f59e0b`,
     borderRadius: 4,
@@ -232,7 +232,7 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   clauseCardLast: {
-    backgroundColor: '#fffbeb',
+    backgroundColor: "#fffbeb",
     border: `1px solid #fde68a`,
     borderLeft: `3px solid #f59e0b`,
     borderRadius: 4,
@@ -244,33 +244,33 @@ const styles = StyleSheet.create({
   },
   declarationText: {
     fontSize: 8.5,
-    color: '#78350f',
+    color: "#78350f",
     lineHeight: 1.55,
   },
   clauseTitle: {
     fontSize: 8.5,
-    fontFamily: 'Poppins-Bold',
-    color: '#78350f',
+    fontFamily: "Poppins-Bold",
+    color: "#78350f",
     marginBottom: 3,
   },
   clauseParagraph: {
     fontSize: 8.5,
-    color: '#78350f',
+    color: "#78350f",
     lineHeight: 1.55,
     marginBottom: 3,
   },
   clauseParagraphLast: {
     fontSize: 8.5,
-    color: '#78350f',
+    color: "#78350f",
     lineHeight: 1.55,
     marginBottom: 0,
   },
 
   // ── Signatures ────────────────────────────────────────────────────────────
   signRow: {
-    flexDirection: 'row',
+    flexDirection: "row",
     marginTop: 32,
-    justifyContent: 'space-between',
+    justifyContent: "space-between",
     gap: 24,
   },
   signBox: {
@@ -280,7 +280,7 @@ const styles = StyleSheet.create({
   },
   signName: {
     fontSize: 9,
-    fontFamily: 'Poppins-Bold',
+    fontFamily: "Poppins-Bold",
     color: INK,
     marginBottom: 3,
   },
@@ -300,9 +300,9 @@ const styles = StyleSheet.create({
 
   // ── Footer ────────────────────────────────────────────────────────────────
   footer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
     borderTop: `1px solid ${BORDER}`,
     marginTop: 24,
     paddingTop: 8,
@@ -314,7 +314,7 @@ const styles = StyleSheet.create({
   footerBrand: {
     fontSize: 7.5,
     color: TEAL,
-    fontFamily: 'Poppins-Bold',
+    fontFamily: "Poppins-Bold",
   },
 });
 
@@ -324,73 +324,73 @@ interface EmployeeReturnPDFProps {
 
 export const RETURN_CLAUSES: { title: string; paragraphs: string[] }[] = [
   {
-    title: '1. Devolución de bienes',
+    title: "1. Devolución de bienes",
     paragraphs: [
-      'El trabajador manifiesta que hace entrega a NOVAHOLD S.A.S. de los equipos, herramientas, accesorios, dispositivos, licencias, documentos, credenciales, medios de acceso y demás bienes que le fueron asignados para el desarrollo de sus funciones laborales, de conformidad con el acta de entrega suscrita durante la vigencia de la relación laboral.',
-      'Los bienes devueltos corresponden a los siguientes:',
-      '[Listado de bienes — ver tabla de activos arriba]',
+      "El trabajador manifiesta que hace entrega a NOVAHOLD S.A.S. de los equipos, herramientas, accesorios, dispositivos, licencias, documentos, credenciales, medios de acceso y demás bienes que le fueron asignados para el desarrollo de sus funciones laborales, de conformidad con el acta de entrega suscrita durante la vigencia de la relación laboral.",
+      "Los bienes devueltos corresponden a los siguientes:",
+      "[Listado de bienes — ver tabla de activos arriba]",
     ],
   },
   {
-    title: '2. Verificación de estado',
+    title: "2. Verificación de estado",
     paragraphs: [
-      'NOVAHOLD S.A.S. realiza la verificación física y funcional preliminar de los bienes entregados, dejando constancia de que:',
-      '☐ Los bienes fueron recibidos a satisfacción.',
-      '☐ Los bienes presentan las siguientes observaciones:',
-      '[Espacio para observaciones generales de la entrega]',
-      'Las partes reconocen que el desgaste normal derivado del uso adecuado de los bienes durante la relación laboral no constituye daño ni genera responsabilidad para el trabajador.',
+      "NOVAHOLD S.A.S. realiza la verificación física y funcional preliminar de los bienes entregados, dejando constancia de que:",
+      "☐ Los bienes fueron recibidos a satisfacción.",
+      "☐ Los bienes presentan las siguientes observaciones:",
+      "[Espacio para observaciones generales de la entrega]",
+      "Las partes reconocen que el desgaste normal derivado del uso adecuado de los bienes durante la relación laboral no constituye daño ni genera responsabilidad para el trabajador.",
     ],
   },
   {
-    title: '3. Entrega de información y accesos',
+    title: "3. Entrega de información y accesos",
     paragraphs: [
-      'El trabajador declara haber entregado o puesto a disposición de NOVAHOLD S.A.S. toda la información, documentación, archivos, bases de datos, correos electrónicos, proyectos, desarrollos, claves, dispositivos de autenticación y demás elementos relacionados con las actividades desempeñadas durante la relación laboral.',
-      'Asimismo, manifiesta que no conserva copias físicas o digitales de información confidencial o reservada de NOVAHOLD S.A.S., salvo aquella cuya conservación sea exigida por disposición legal.',
+      "El trabajador declara haber entregado o puesto a disposición de NOVAHOLD S.A.S. toda la información, documentación, archivos, bases de datos, correos electrónicos, proyectos, desarrollos, claves, dispositivos de autenticación y demás elementos relacionados con las actividades desempeñadas durante la relación laboral.",
+      "Asimismo, manifiesta que no conserva copias físicas o digitales de información confidencial o reservada de NOVAHOLD S.A.S., salvo aquella cuya conservación sea exigida por disposición legal.",
     ],
   },
   {
-    title: '4. Confidencialidad y protección de la información',
+    title: "4. Confidencialidad y protección de la información",
     paragraphs: [
-      'El trabajador reconoce que las obligaciones de confidencialidad, reserva, protección de datos personales, seguridad de la información y protección de secretos empresariales asumidas durante la relación laboral continúan vigentes aun después de la terminación del contrato, de conformidad con la legislación colombiana aplicable y las políticas internas de NOVAHOLD S.A.S.',
+      "El trabajador reconoce que las obligaciones de confidencialidad, reserva, protección de datos personales, seguridad de la información y protección de secretos empresariales asumidas durante la relación laboral continúan vigentes aun después de la terminación del contrato, de conformidad con la legislación colombiana aplicable y las políticas internas de NOVAHOLD S.A.S.",
     ],
   },
   {
-    title: '5. Responsabilidad por daños, pérdidas o deterioros',
+    title: "5. Responsabilidad por daños, pérdidas o deterioros",
     paragraphs: [
-      'El trabajador declara que los bienes objeto de la presente devolución fueron utilizados conforme a las obligaciones de custodia, conservación y uso establecidas por NOVAHOLD S.A.S.',
-      'En caso de que, durante la verificación de los bienes entregados o en revisiones técnicas posteriores, se evidencien daños, pérdidas, alteraciones, faltantes o deterioros atribuibles a conducta dolosa, culpa grave, uso indebido, negligencia o incumplimiento de las instrucciones impartidas por NOVAHOLD S.A.S., la compañía podrá adelantar las investigaciones internas correspondientes y ejercer las acciones disciplinarias, laborales, civiles o penales a que haya lugar, de conformidad con la legislación colombiana vigente.',
-      'La determinación de la responsabilidad del trabajador deberá estar debidamente soportada y respetar las garantías del debido proceso.',
-      'En ningún caso la existencia de daños, faltantes o deterioros facultará por sí sola a NOVAHOLD S.A.S. para efectuar descuentos, compensaciones o retenciones sobre salarios, prestaciones sociales, liquidaciones o cualquier otro derecho laboral, salvo autorización previa, expresa y escrita del trabajador o decisión de autoridad competente.',
-      'Cuando el trabajador reconozca expresamente su responsabilidad respecto de un daño o pérdida y manifieste voluntariamente su intención de asumir el costo correspondiente, las partes podrán suscribir un acuerdo independiente que establezca las condiciones de pago, respetando en todo caso la normativa laboral colombiana aplicable.',
+      "El trabajador declara que los bienes objeto de la presente devolución fueron utilizados conforme a las obligaciones de custodia, conservación y uso establecidas por NOVAHOLD S.A.S.",
+      "En caso de que, durante la verificación de los bienes entregados o en revisiones técnicas posteriores, se evidencien daños, pérdidas, alteraciones, faltantes o deterioros atribuibles a conducta dolosa, culpa grave, uso indebido, negligencia o incumplimiento de las instrucciones impartidas por NOVAHOLD S.A.S., la compañía podrá adelantar las investigaciones internas correspondientes y ejercer las acciones disciplinarias, laborales, civiles o penales a que haya lugar, de conformidad con la legislación colombiana vigente.",
+      "La determinación de la responsabilidad del trabajador deberá estar debidamente soportada y respetar las garantías del debido proceso.",
+      "En ningún caso la existencia de daños, faltantes o deterioros facultará por sí sola a NOVAHOLD S.A.S. para efectuar descuentos, compensaciones o retenciones sobre salarios, prestaciones sociales, liquidaciones o cualquier otro derecho laboral, salvo autorización previa, expresa y escrita del trabajador o decisión de autoridad competente.",
+      "Cuando el trabajador reconozca expresamente su responsabilidad respecto de un daño o pérdida y manifieste voluntariamente su intención de asumir el costo correspondiente, las partes podrán suscribir un acuerdo independiente que establezca las condiciones de pago, respetando en todo caso la normativa laboral colombiana aplicable.",
     ],
   },
   {
-    title: '6. Hallazgos posteriores a la devolución',
+    title: "6. Hallazgos posteriores a la devolución",
     paragraphs: [
-      'La recepción de los bienes por parte de NOVAHOLD S.A.S. no implica aceptación definitiva de su estado técnico o funcional.',
-      'La compañía podrá realizar verificaciones físicas, técnicas, informáticas o de seguridad de la información dentro de los treinta (30) días calendario siguientes a la devolución, con el fin de identificar daños ocultos, alteraciones de configuración, eliminación no autorizada de información corporativa, instalación de software no autorizado, pérdida de activos de información o cualquier otra afectación no detectable razonablemente al momento de la entrega.',
-      'De evidenciarse alguna de estas situaciones y comprobarse que son atribuibles al trabajador por dolo o culpa grave, NOVAHOLD S.A.S. podrá ejercer las acciones legales correspondientes para obtener la reparación de los perjuicios ocasionados, conforme a la legislación colombiana vigente.',
+      "La recepción de los bienes por parte de NOVAHOLD S.A.S. no implica aceptación definitiva de su estado técnico o funcional.",
+      "La compañía podrá realizar verificaciones físicas, técnicas, informáticas o de seguridad de la información dentro de los treinta (30) días calendario siguientes a la devolución, con el fin de identificar daños ocultos, alteraciones de configuración, eliminación no autorizada de información corporativa, instalación de software no autorizado, pérdida de activos de información o cualquier otra afectación no detectable razonablemente al momento de la entrega.",
+      "De evidenciarse alguna de estas situaciones y comprobarse que son atribuibles al trabajador por dolo o culpa grave, NOVAHOLD S.A.S. podrá ejercer las acciones legales correspondientes para obtener la reparación de los perjuicios ocasionados, conforme a la legislación colombiana vigente.",
     ],
   },
   {
-    title: '7. Pendientes y faltantes',
+    title: "7. Pendientes y faltantes",
     paragraphs: [
-      'En caso de evidenciarse la ausencia de algún bien, accesorio o elemento asignado, se dejará constancia expresa de dicha situación en la presente acta:',
-      '[Espacio para anotar pendientes o faltantes]',
-      'La existencia de faltantes, daños o inconsistencias no autoriza por sí sola descuentos, retenciones o compensaciones sobre salarios, prestaciones sociales, liquidaciones o cualquier otra acreencia laboral, salvo autorización previa, expresa y escrita del trabajador o decisión de autoridad competente, de conformidad con la legislación laboral colombiana vigente.',
+      "En caso de evidenciarse la ausencia de algún bien, accesorio o elemento asignado, se dejará constancia expresa de dicha situación en la presente acta:",
+      "[Espacio para anotar pendientes o faltantes]",
+      "La existencia de faltantes, daños o inconsistencias no autoriza por sí sola descuentos, retenciones o compensaciones sobre salarios, prestaciones sociales, liquidaciones o cualquier otra acreencia laboral, salvo autorización previa, expresa y escrita del trabajador o decisión de autoridad competente, de conformidad con la legislación laboral colombiana vigente.",
     ],
   },
   {
-    title: '8. Paz y salvo respecto de bienes corporativos',
+    title: "8. Paz y salvo respecto de bienes corporativos",
     paragraphs: [
-      'Con la firma de la presente acta, NOVAHOLD S.A.S. deja constancia de la recepción de los bienes relacionados anteriormente, sin perjuicio de las verificaciones técnicas y administrativas posteriores que permitan establecer su estado de funcionamiento, integridad de la información o existencia de elementos pendientes de devolución.',
-      'La suscripción de este documento tiene efectos exclusivamente respecto de la devolución de bienes corporativos y no implica renuncia de derechos laborales, reconocimiento de obligaciones distintas de las aquí consignadas ni constituye paz y salvo general entre las partes.',
+      "Con la firma de la presente acta, NOVAHOLD S.A.S. deja constancia de la recepción de los bienes relacionados anteriormente, sin perjuicio de las verificaciones técnicas y administrativas posteriores que permitan establecer su estado de funcionamiento, integridad de la información o existencia de elementos pendientes de devolución.",
+      "La suscripción de este documento tiene efectos exclusivamente respecto de la devolución de bienes corporativos y no implica renuncia de derechos laborales, reconocimiento de obligaciones distintas de las aquí consignadas ni constituye paz y salvo general entre las partes.",
     ],
   },
   {
-    title: '9. Firma y aceptación',
+    title: "9. Firma y aceptación",
     paragraphs: [
-      'Leída la presente acta y encontrándola conforme, las partes la suscriben en señal de aceptación.',
+      "Leída la presente acta y encontrándola conforme, las partes la suscriben en señal de aceptación.",
     ],
   },
 ];
@@ -398,10 +398,10 @@ export const RETURN_CLAUSES: { title: string; paragraphs: string[] }[] = [
 export function EmployeeReturnPDF({ data }: EmployeeReturnPDFProps) {
   const { employee, assignments, generatedAt } = data;
 
-  const generatedDate = new Date(generatedAt).toLocaleDateString('es-CO', {
-    day: '2-digit',
-    month: '2-digit',
-    year: 'numeric',
+  const generatedDate = new Date(generatedAt).toLocaleDateString("es-CO", {
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
   });
 
   return (
@@ -416,11 +416,14 @@ export function EmployeeReturnPDF({ data }: EmployeeReturnPDFProps) {
               <Text style={styles.headerMetaText}>{employee.fullName}</Text>
             </View>
             <View style={styles.headerMetaChip}>
-              <Text style={styles.headerMetaText}>Generado {generatedDate}</Text>
+              <Text style={styles.headerMetaText}>
+                Generado {generatedDate}
+              </Text>
             </View>
             <View style={styles.headerMetaChip}>
               <Text style={styles.headerMetaText}>
-                {assignments.length} equipo{assignments.length !== 1 ? 's' : ''} a devolver
+                {assignments.length} equipo{assignments.length !== 1 ? "s" : ""}{" "}
+                a devolver
               </Text>
             </View>
           </View>
@@ -444,7 +447,7 @@ export function EmployeeReturnPDF({ data }: EmployeeReturnPDFProps) {
               </View>
               <View style={styles.dataRow}>
                 <Text style={styles.dataLabel}>Cargo</Text>
-                <Text style={styles.dataValue}>{employee.position ?? '—'}</Text>
+                <Text style={styles.dataValue}>{employee.position ?? "—"}</Text>
               </View>
               <View style={styles.dataRow}>
                 <Text style={styles.dataLabel}>Email</Text>
@@ -458,15 +461,19 @@ export function EmployeeReturnPDF({ data }: EmployeeReturnPDFProps) {
               )}
               <View style={styles.dataRow}>
                 <Text style={styles.dataLabel}>Departamento</Text>
-                <Text style={styles.dataValue}>{employee.departmentName ?? '—'}</Text>
+                <Text style={styles.dataValue}>
+                  {employee.departmentName ?? "—"}
+                </Text>
               </View>
               <View style={styles.dataRow}>
                 <Text style={styles.dataLabel}>Sede</Text>
-                <Text style={styles.dataValue}>{employee.locationName ?? '—'}</Text>
+                <Text style={styles.dataValue}>
+                  {employee.locationName ?? "—"}
+                </Text>
               </View>
               <View style={styles.dataRowLast}>
                 <Text style={styles.dataLabel}>Ciudad</Text>
-                <Text style={styles.dataValue}>{employee.cityName ?? '—'}</Text>
+                <Text style={styles.dataValue}>{employee.cityName ?? "—"}</Text>
               </View>
             </View>
           </View>
@@ -485,11 +492,21 @@ export function EmployeeReturnPDF({ data }: EmployeeReturnPDFProps) {
             ) : (
               <View style={styles.tableContainer}>
                 <View style={styles.tableHead}>
-                  <Text style={[styles.tableHeadCell, styles.cCode]}>Código</Text>
-                  <Text style={[styles.tableHeadCell, styles.cDesc]}>Marca / Modelo</Text>
-                  <Text style={[styles.tableHeadCell, styles.cSerial]}>Serial</Text>
-                  <Text style={[styles.tableHeadCell, styles.cStatus]}>Estado</Text>
-                  <Text style={[styles.tableHeadCell, styles.cDate]}>Asignado</Text>
+                  <Text style={[styles.tableHeadCell, styles.cCode]}>
+                    Código
+                  </Text>
+                  <Text style={[styles.tableHeadCell, styles.cDesc]}>
+                    Marca / Modelo
+                  </Text>
+                  <Text style={[styles.tableHeadCell, styles.cSerial]}>
+                    Serial
+                  </Text>
+                  <Text style={[styles.tableHeadCell, styles.cStatus]}>
+                    Estado
+                  </Text>
+                  <Text style={[styles.tableHeadCell, styles.cDate]}>
+                    Asignado
+                  </Text>
                 </View>
                 {assignments.map((a, i) => (
                   <View
@@ -504,10 +521,10 @@ export function EmployeeReturnPDF({ data }: EmployeeReturnPDFProps) {
                       {a.assetCode}
                     </Text>
                     <Text style={[styles.tableCell, styles.cDesc]}>
-                      {[a.brand, a.model].filter(Boolean).join(' ') || '—'}
+                      {[a.brand, a.model].filter(Boolean).join(" ") || "—"}
                     </Text>
                     <Text style={[styles.tableCell, styles.cSerial]}>
-                      {a.serialNumber ?? '—'}
+                      {a.serialNumber ?? "—"}
                     </Text>
                     <View style={styles.cStatus}>
                       <View style={styles.statusBadge}>
@@ -517,7 +534,7 @@ export function EmployeeReturnPDF({ data }: EmployeeReturnPDFProps) {
                       </View>
                     </View>
                     <Text style={[styles.tableCell, styles.cDate]}>
-                      {new Date(a.assignedAt).toLocaleDateString('es-CO')}
+                      {new Date(a.assignedAt).toLocaleDateString("es-CO")}
                     </Text>
                   </View>
                 ))}
@@ -535,7 +552,11 @@ export function EmployeeReturnPDF({ data }: EmployeeReturnPDFProps) {
               <View
                 key={ci}
                 wrap={false}
-                style={ci < RETURN_CLAUSES.length - 1 ? styles.clauseCard : styles.clauseCardLast}
+                style={
+                  ci < RETURN_CLAUSES.length - 1
+                    ? styles.clauseCard
+                    : styles.clauseCardLast
+                }
               >
                 <Text style={styles.clauseTitle}>{clause.title}</Text>
                 {clause.paragraphs.map((p, pi) => (
@@ -559,24 +580,36 @@ export function EmployeeReturnPDF({ data }: EmployeeReturnPDFProps) {
             <View style={styles.signBox}>
               <Text style={styles.signName}>{employee.fullName}</Text>
               <Text style={styles.signMeta}>Empleado</Text>
-              <Text style={styles.signField}>C.C. ___________________________</Text>
-              <Text style={styles.signField}>Firma ___________________________</Text>
-              <Text style={styles.signField}>Fecha ___________________________</Text>
+              <Text style={styles.signField}>
+                C.C. ___________________________
+              </Text>
+              <Text style={styles.signField}>
+                Firma ___________________________
+              </Text>
+              <Text style={styles.signField}>
+                Fecha ___________________________
+              </Text>
             </View>
             <View style={styles.signBox}>
               <Text style={styles.signName}>Representante Novahold</Text>
-              <Text style={styles.signMeta}>Área de Tecnología</Text>
-              <Text style={styles.signField}>Nombre ___________________________</Text>
-              <Text style={styles.signField}>C.C. ___________________________</Text>
-              <Text style={styles.signField}>Firma ___________________________</Text>
-              <Text style={styles.signField}>Fecha ___________________________</Text>
+              <Text style={styles.signMeta}>Área de Recursos Humanos</Text>
+              <Text style={styles.signField}>
+                Nombre ___________________________
+              </Text>
+              <Text style={styles.signField}>
+                C.C. ___________________________
+              </Text>
+              <Text style={styles.signField}>
+                Fecha ___________________________
+              </Text>
             </View>
           </View>
 
           {/* Footer */}
           <View style={styles.footer}>
             <Text style={styles.footerText}>
-              Documento generado el {generatedDate} · Sistema de Gestión de Inventario
+              Documento generado el {generatedDate} · Sistema de Gestión de
+              Inventario
             </Text>
             <Text style={styles.footerBrand}>NOVAHOLD</Text>
           </View>
