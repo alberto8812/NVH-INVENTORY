@@ -583,7 +583,7 @@ export function EmployeeAssignmentPDF({ data }: EmployeeAssignmentPDFProps) {
           <View style={styles.signRow}>
             <View style={styles.signBox}>
               <Text style={styles.signName}>{employee.fullName}</Text>
-              <Text style={styles.signMeta}>Empleado</Text>
+              <Text style={styles.signMeta}>Trabajador</Text>
               <Text style={styles.signField}>
                 C.C. ___________________________
               </Text>
