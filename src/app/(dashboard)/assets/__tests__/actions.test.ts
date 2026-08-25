@@ -264,7 +264,7 @@ describe('createAssetAction', () => {
 
   it('returns FORBIDDEN for VIEWER', async () => {
     mockAuth.mockResolvedValue(viewerSession);
-    const r = await createAssetAction({ categoryId: 'cat1' });
+    const r = await createAssetAction({ companyId: 'cmp1', categoryId: 'cat1' });
     expect(r.ok).toBe(false);
     expect((r as { ok: false; code: string }).code).toBe('FORBIDDEN');
   });
@@ -331,7 +331,7 @@ describe('createAssetAction', () => {
   it('returns VALIDATION when categoryId missing', async () => {
     mockAuth.mockResolvedValue(adminSession);
     mockCategory.findUnique.mockResolvedValue(null);
-    const r = await createAssetAction({ categoryId: '' });
+    const r = await createAssetAction({ companyId: 'cmp1', categoryId: '' });
     expect(r.ok).toBe(false);
     expect((r as { ok: false; code: string }).code).toMatch(/VALIDATION|NOT_FOUND/);
   });
@@ -1011,7 +1011,7 @@ describe('createAssetAction — locationId required (T-01-B)', () => {
   it('returns VALIDATION with fieldErrors.locationId when locationId is absent', async () => {
     mockAuth.mockResolvedValue(adminSession);
     mockCategory.findUnique.mockResolvedValue(baseCategory);
-    const r = await createAssetAction({ categoryId: 'cat1' });
+    const r = await createAssetAction({ companyId: 'cmp1', categoryId: 'cat1' });
     expect(r.ok).toBe(false);
     if (r.ok) return;
     expect(r.code).toBe('VALIDATION');
@@ -1021,7 +1021,7 @@ describe('createAssetAction — locationId required (T-01-B)', () => {
   it('returns VALIDATION with fieldErrors.locationId when locationId is empty string', async () => {
     mockAuth.mockResolvedValue(adminSession);
     mockCategory.findUnique.mockResolvedValue(baseCategory);
-    const r = await createAssetAction({ categoryId: 'cat1', locationId: '' });
+    const r = await createAssetAction({ companyId: 'cmp1', categoryId: 'cat1', locationId: '' });
     expect(r.ok).toBe(false);
     if (r.ok) return;
     expect(r.code).toBe('VALIDATION');

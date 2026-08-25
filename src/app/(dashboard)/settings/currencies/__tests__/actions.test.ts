@@ -37,7 +37,7 @@ import {
 
 const mockAuth = auth as ReturnType<typeof vi.fn>;
 const mockTransaction = prisma.$transaction as ReturnType<typeof vi.fn>;
-const mockCurrency = prisma.currency as {
+const mockCurrency = prisma.currency as unknown as {
   findUnique: ReturnType<typeof vi.fn>;
   findMany: ReturnType<typeof vi.fn>;
   count: ReturnType<typeof vi.fn>;
@@ -46,7 +46,7 @@ const mockCurrency = prisma.currency as {
   updateMany: ReturnType<typeof vi.fn>;
   delete: ReturnType<typeof vi.fn>;
 };
-const mockExchangeRate = prisma.exchangeRate as {
+const mockExchangeRate = prisma.exchangeRate as unknown as {
   findUnique: ReturnType<typeof vi.fn>;
   findMany: ReturnType<typeof vi.fn>;
   count: ReturnType<typeof vi.fn>;

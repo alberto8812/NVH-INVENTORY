@@ -58,7 +58,7 @@ describe('UsersPage', () => {
   });
 
   it('redirects to / when no session', async () => {
-    vi.mocked(auth).mockResolvedValue(null);
+    vi.mocked(auth).mockResolvedValue(null as never);
     await expect(UsersPage({ searchParams: Promise.resolve({}) })).rejects.toThrow('NEXT_REDIRECT');
     expect(redirect).toHaveBeenCalledWith('/');
   });

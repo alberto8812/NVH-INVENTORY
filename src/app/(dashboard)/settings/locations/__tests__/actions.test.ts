@@ -64,10 +64,10 @@ type MockedPrismaModel = {
   delete: ReturnType<typeof vi.fn>;
 };
 
-const mockCountry = prisma.country as MockedPrismaModel;
-const mockCity = prisma.city as MockedPrismaModel;
-const mockLocation = prisma.location as MockedPrismaModel;
-const mockBodega = prisma.bodega as MockedPrismaModel;
+const mockCountry = prisma.country as unknown as MockedPrismaModel;
+const mockCity = prisma.city as unknown as MockedPrismaModel;
+const mockLocation = prisma.location as unknown as MockedPrismaModel;
+const mockBodega = prisma.bodega as unknown as MockedPrismaModel;
 
 function makeSession(role: string) {
   return { user: { id: 'u1', role } };

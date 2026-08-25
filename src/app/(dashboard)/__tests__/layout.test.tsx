@@ -42,7 +42,7 @@ describe('DashboardLayout', () => {
   });
 
   it('redirects to /login when no session', async () => {
-    vi.mocked(auth).mockResolvedValue(null);
+    vi.mocked(auth).mockResolvedValue(null as never);
     await expect(DashboardLayout({ children: <div /> })).rejects.toThrow('NEXT_REDIRECT');
     expect(redirect).toHaveBeenCalledWith('/login');
   });

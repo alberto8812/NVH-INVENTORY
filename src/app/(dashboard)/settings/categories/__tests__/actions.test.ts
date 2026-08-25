@@ -30,7 +30,7 @@ import {
 
 const mockAuth = auth as ReturnType<typeof vi.fn>;
 const mockTransaction = prisma.$transaction as ReturnType<typeof vi.fn>;
-const mockCategory = prisma.category as {
+const mockCategory = prisma.category as unknown as {
   findUnique: ReturnType<typeof vi.fn>;
   findMany: ReturnType<typeof vi.fn>;
   count: ReturnType<typeof vi.fn>;

@@ -858,7 +858,7 @@ describe('audit — deleteAssignmentAction', () => {
     const mockWriteAudit = writeAudit as ReturnType<typeof vi.fn>;
 
     const snapshot = { assetId: 'asset1', employeeId: 'emp1', status: 'RETURNED' };
-    mockAssignment.findUnique.mockResolvedValue({ id: 'asgn1', status: 'RETURNED', ...snapshot });
+    mockAssignment.findUnique.mockResolvedValue({ ...snapshot, id: 'asgn1', status: 'RETURNED' });
 
     mockTransaction.mockImplementation(async (fn: (tx: unknown) => unknown) => {
       const tx = {

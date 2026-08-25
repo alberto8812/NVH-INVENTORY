@@ -35,7 +35,7 @@ describe('DashboardHomePage', () => {
   });
 
   it('renders a CTA pointing to a module route', async () => {
-    vi.mocked(auth).mockResolvedValue(null);
+    vi.mocked(auth).mockResolvedValue(null as never);
     const el = await DashboardHomePage();
     render(el);
     // At least one link pointing to a module route
