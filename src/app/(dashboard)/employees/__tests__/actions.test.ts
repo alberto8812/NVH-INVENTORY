@@ -76,12 +76,12 @@ import {
 
 const mockAuth = auth as ReturnType<typeof vi.fn>;
 const mockHasPermission = hasPermission as ReturnType<typeof vi.fn>;
-const mockEmployee = prisma.employee as Record<string, ReturnType<typeof vi.fn>>;
-const mockDepartment = prisma.department as Record<string, ReturnType<typeof vi.fn>>;
-const mockCity = prisma.city as Record<string, ReturnType<typeof vi.fn>>;
-const mockLocation = prisma.location as Record<string, ReturnType<typeof vi.fn>>;
-const mockImportLog = prisma.importLog as Record<string, ReturnType<typeof vi.fn>>;
-const mockAssignment = prisma.assignment as Record<string, ReturnType<typeof vi.fn>>;
+const mockEmployee = prisma.employee as unknown as Record<string, ReturnType<typeof vi.fn>>;
+const mockDepartment = prisma.department as unknown as Record<string, ReturnType<typeof vi.fn>>;
+const mockCity = prisma.city as unknown as Record<string, ReturnType<typeof vi.fn>>;
+const mockLocation = prisma.location as unknown as Record<string, ReturnType<typeof vi.fn>>;
+const mockImportLog = prisma.importLog as unknown as Record<string, ReturnType<typeof vi.fn>>;
+const mockAssignment = prisma.assignment as unknown as Record<string, ReturnType<typeof vi.fn>>;
 const mockTransaction = prisma.$transaction as ReturnType<typeof vi.fn>;
 
 function makeSession(role: string) {
