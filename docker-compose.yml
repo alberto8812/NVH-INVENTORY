@@ -13,7 +13,17 @@ services:
     volumes:
       - novahold_db_data:/var/lib/mysql
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "novahold", "-pnovahold_pass"]
+      test:
+        [
+          "CMD",
+          "mysqladmin",
+          "ping",
+          "-h",
+          "localhost",
+          "-u",
+          "novahold",
+          "-pnovahold_pass",
+        ]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -22,20 +32,20 @@ services:
   # ─────────────────────────────────────────────────────────
   # App Next.js — usa el Dockerfile multi-stage del paso 2
   # ─────────────────────────────────────────────────────────
-  app:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    container_name: novahold_app
-    restart: unless-stopped
-    depends_on:
-      db:
-        # No arranca hasta que el healthcheck de db pase
-        condition: service_healthy
-    env_file:
-      - .env.docker
-    ports:
-      - "3000:3000"
+  # app:
+  #   build:
+  #     context: .
+  #     dockerfile: Dockerfile
+  #   container_name: novahold_app
+  #   restart: unless-stopped
+  #   depends_on:
+  #     db:
+  #       # No arranca hasta que el healthcheck de db pase
+  #       condition: service_healthy
+  #   env_file:
+  #     - .env.docker
+  #   ports:
+  #     - "3000:3000"
 
 volumes:
   novahold_db_data:

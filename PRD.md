@@ -350,7 +350,7 @@ NEXT_PUBLIC_COMPANY_PREFIX="NVH"
 - [x] Dashboard → KPIs con datos reales del inventario
 - [x] SUPER_ADMIN puede cambiar roles de usuarios
 - [x] VIEWER no puede crear ni editar nada
-- [ ] Generar snapshot anual → guardado y visible en historial financiero *(pendiente — backlog v1.1)*
+- [X] Generar snapshot anual → guardado y visible en historial financiero *(pendiente — backlog v1.1)*
 
 ---
 
