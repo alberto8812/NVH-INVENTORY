@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Search } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -31,17 +31,29 @@ export function FilterBar({
   className,
 }: FilterBarProps) {
   const [inputValue, setInputValue] = useState(searchValue);
+  // Trimmed values emitted but not yet echoed back through searchValue
+  const pending = useRef<string[]>([]);
 
-  // Mirror external changes (browser back, programmatic clear)
+  // Mirror external changes (browser back, programmatic clear). Echoes of our own
+  // emissions are ignored, otherwise a late echo overwrites what the user kept typing.
   useEffect(() => {
+    const idx = pending.current.indexOf(searchValue);
+    if (idx !== -1) {
+      pending.current = pending.current.slice(idx + 1);
+      return;
+    }
+    pending.current = [];
     setInputValue(searchValue);
   }, [searchValue]);
 
   const debounced = useDebounce(inputValue, 300);
 
-  // Emit only when debounced value genuinely differs from canonical (prevents mount/sync emit)
+  // Emit only when debounced value genuinely differs from the latest target (prevents mount/sync emit)
   useEffect(() => {
-    if (debounced !== searchValue) onSearchChange(debounced);
+    const next = debounced.trim();
+    if (next === (pending.current.at(-1) ?? searchValue)) return;
+    pending.current.push(next);
+    onSearchChange(debounced);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [debounced]);
 
