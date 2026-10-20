@@ -190,10 +190,11 @@ const styles = StyleSheet.create({
   },
 
   // Column widths
-  cCode: { width: "22%" },
-  cDesc: { width: "30%" },
-  cSerial: { width: "20%" },
-  cStatus: { width: "14%" },
+  cCode: { width: "17%" },
+  cCategory: { width: "16%" },
+  cDesc: { width: "25%" },
+  cSerial: { width: "16%" },
+  cStatus: { width: "12%" },
   cDate: { width: "14%" },
 
   // Status badge
@@ -497,6 +498,9 @@ export function EmployeeAssignmentPDF({ data }: EmployeeAssignmentPDFProps) {
                   <Text style={[styles.tableHeadCell, styles.cCode]}>
                     Código
                   </Text>
+                  <Text style={[styles.tableHeadCell, styles.cCategory]}>
+                    Categoría
+                  </Text>
                   <Text style={[styles.tableHeadCell, styles.cDesc]}>
                     Marca / Modelo
                   </Text>
@@ -521,6 +525,9 @@ export function EmployeeAssignmentPDF({ data }: EmployeeAssignmentPDFProps) {
                   >
                     <Text style={[styles.tableCellCode, styles.cCode]}>
                       {a.assetCode}
+                    </Text>
+                    <Text style={[styles.tableCell, styles.cCategory]}>
+                      {a.categoryName}
                     </Text>
                     <Text style={[styles.tableCell, styles.cDesc]}>
                       {[a.brand, a.model].filter(Boolean).join(" ") || "—"}
