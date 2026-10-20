@@ -57,7 +57,7 @@ interface AutocompleteProps {
   autoFocus?: boolean;
 }
 
-function Autocomplete({ onSelect, searchFn, placeholder, reset, inputClassName, autoFocus }: AutocompleteProps) {
+export function Autocomplete({ onSelect, searchFn, placeholder, reset, inputClassName, autoFocus }: AutocompleteProps) {
   const [query, setQuery] = useState('');
   const [options, setOptions] = useState<{ code: string; value: string }[]>([]);
   const [open, setOpen] = useState(false);
@@ -66,18 +66,25 @@ function Autocomplete({ onSelect, searchFn, placeholder, reset, inputClassName, 
 
   useEffect(() => { setQuery(''); setOptions([]); }, [reset]);
 
+  // Empty query lists default options
+  function runSearch(q: string) {
+    setLoading(true);
+    searchFn(q.trim())
+      .then((r) => setOptions(r.ok && r.data ? r.data : []))
+      .catch(() => setOptions([]))
+      .finally(() => setLoading(false));
+  }
+
   function onChange(v: string) {
     setQuery(v);
     setOpen(true);
     if (timer.current) clearTimeout(timer.current);
-    timer.current = setTimeout(() => {
-      if (v.trim().length < 1) { setOptions([]); return; }
-      setLoading(true);
-      searchFn(v.trim())
-        .then((r) => setOptions(r.ok && r.data ? r.data : []))
-        .catch(() => setOptions([]))
-        .finally(() => setLoading(false));
-    }, 250);
+    timer.current = setTimeout(() => runSearch(v), 250);
+  }
+
+  function onFocus() {
+    setOpen(true);
+    if (!query.trim() || options.length === 0) runSearch(query);
   }
 
   function pick(opt: { code: string; value: string }) {
@@ -93,7 +100,7 @@ function Autocomplete({ onSelect, searchFn, placeholder, reset, inputClassName, 
         autoFocus={autoFocus}
         value={query}
         onChange={(e) => onChange(e.target.value)}
-        onFocus={() => query.length >= 1 && setOpen(true)}
+        onFocus={onFocus}
         onBlur={() => setTimeout(() => setOpen(false), 150)}
         placeholder={placeholder}
         className={cn('h-9 text-sm bg-background', inputClassName)}

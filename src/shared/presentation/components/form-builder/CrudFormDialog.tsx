@@ -194,9 +194,10 @@ function AutocompleteField({ field, watch, setValue, onCascadeStart, onCascadeEn
   }
 
   function runSearch(q: string) {
-    if (q.trim().length < minChars) { setOptions([]); return; }
+    // Below minChars (including empty) list default options instead of nothing
+    const term = q.trim().length < minChars ? '' : q.trim();
     setLoading(true);
-    cfg.searchAction(q.trim(), watchedValue)
+    cfg.searchAction(term, watchedValue)
       .then((opts) => setOptions(opts))
       .catch(() => setOptions([]))
       .finally(() => setLoading(false));
@@ -213,7 +214,8 @@ function AutocompleteField({ field, watch, setValue, onCascadeStart, onCascadeEn
 
   function onFocus() {
     calcPosition();
-    if (query.length >= minChars) setOpen(true);
+    setOpen(true);
+    if (query.trim().length < minChars || options.length === 0) runSearch(query);
   }
 
   async function pick(opt: AutocompleteOption) {

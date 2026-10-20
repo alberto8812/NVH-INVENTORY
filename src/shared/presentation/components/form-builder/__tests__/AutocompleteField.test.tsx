@@ -57,16 +57,39 @@ describe('AutocompleteField', () => {
     searchAction.mockClear();
   });
 
-  it('does not call searchAction when fewer than minChars typed', async () => {
+  it('shows default options on focus when the field is empty', async () => {
+    searchAction.mockResolvedValue([
+      { code: '1', value: 'opt-1' },
+      { code: '2', value: 'opt-2' },
+      { code: '3', value: 'opt-3' },
+      { code: '4', value: 'opt-4' },
+      { code: '5', value: 'opt-5' },
+    ]);
+    renderDialog();
+    const user = userEvent.setup();
+
+    await act(async () => {
+      await user.click(screen.getByPlaceholderText(/padre/i));
+    });
+
+    expect(searchAction).toHaveBeenCalledWith('', undefined);
+    await waitFor(() => {
+      expect(screen.getAllByText(/^opt-\d$/)).toHaveLength(5);
+    }, { timeout: 500 });
+  });
+
+  it('falls back to default options when fewer than minChars typed', async () => {
     renderDialog();
     const user = userEvent.setup();
     const input = screen.getByPlaceholderText(/padre/i);
-    // Type only 1 char — below minChars=2
     await act(async () => {
-      await user.type(input, 'a');
+      await user.type(input, 'a'); // below minChars=2
     });
-    // After typing 1 char but before debounce fires, searchAction should not be called
-    expect(searchAction).not.toHaveBeenCalled();
+
+    await waitFor(() => {
+      expect(searchAction).toHaveBeenLastCalledWith('', undefined);
+    }, { timeout: 500 });
+    expect(searchAction).not.toHaveBeenCalledWith('a', undefined);
   });
 
   it('calls searchAction after debounce when 2+ chars typed', async () => {
