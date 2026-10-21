@@ -1,14 +1,19 @@
 import { redirect } from 'next/navigation';
 import { auth } from '@/auth';
 import { hasPermission } from '@/lib/permissions';
-import { listAssetsAction } from './actions';
+import { listAssetsAction, listAssetCategoryOptionsAction } from './actions';
 import { AssetsTablePage } from './presentation/components/AssetsTablePage';
 
 type Role = Parameters<typeof hasPermission>[0];
 type IsActiveParam = 'active' | 'inactive' | 'all';
+type AvailabilityParam = 'available' | 'assigned' | 'all';
 
 function parseIsActive(v: string | undefined): IsActiveParam {
   return v === 'all' || v === 'inactive' ? v : 'active';
+}
+
+function parseAvailability(v: string | undefined): AvailabilityParam {
+  return v === 'available' || v === 'assigned' ? v : 'all';
 }
 
 export default async function AssetsPage({
@@ -23,6 +28,7 @@ export default async function AssetsPage({
     categoryId?: string;
     generalStatus?: string;
     locationId?: string;
+    availability?: string;
   }>;
 }) {
   const session = await auth();
@@ -36,8 +42,9 @@ export default async function AssetsPage({
   const beforeCursor = sp.beforeCursor || undefined;
   const isActive = parseIsActive(sp.isActive);
   const q = sp.q?.trim() ?? '';
+  const availability = parseAvailability(sp.availability);
 
-  const result = await listAssetsAction({
+  const [result, categories] = await Promise.all([listAssetsAction({
     pageSize,
     afterCursor,
     beforeCursor,
@@ -46,7 +53,8 @@ export default async function AssetsPage({
     categoryId: sp.categoryId,
     generalStatus: sp.generalStatus,
     locationId: sp.locationId,
-  });
+    availability: availability === 'all' ? undefined : availability,
+  }), listAssetCategoryOptionsAction()]);
   if (!result.ok) redirect('/');
 
   const canWrite = hasPermission(session.user.role as Role, 'assets', 'create');
@@ -60,6 +68,9 @@ export default async function AssetsPage({
       currentPageSize={pageSize}
       currentIsActive={isActive}
       currentQ={q}
+      currentAvailability={availability}
+      currentCategoryId={sp.categoryId ?? ''}
+      categoryOptions={categories.ok ? categories.data : []}
     />
   );
 }

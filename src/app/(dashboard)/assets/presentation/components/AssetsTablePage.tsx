@@ -21,6 +21,7 @@ import type { AssetRow } from '../dto/asset.dto';
 import type { PageInfo } from '@/shared/types/pagination';
 
 type IsActiveParam = 'active' | 'inactive' | 'all';
+type AvailabilityParam = 'available' | 'assigned' | 'all';
 
 interface AssetsTablePageProps {
   initialRows: AssetRow[];
@@ -30,6 +31,9 @@ interface AssetsTablePageProps {
   currentPageSize: number;
   currentIsActive: IsActiveParam;
   currentQ: string;
+  currentAvailability: AvailabilityParam;
+  currentCategoryId: string;
+  categoryOptions: { id: string; name: string }[];
 }
 
 export function AssetsTablePage({
@@ -40,6 +44,9 @@ export function AssetsTablePage({
   currentPageSize,
   currentIsActive,
   currentQ,
+  currentAvailability,
+  currentCategoryId,
+  categoryOptions,
 }: AssetsTablePageProps) {
   const [uiState, setUiState] = useState<{
     createOpen: boolean;
@@ -154,6 +161,17 @@ export function AssetsTablePage({
     { label: 'Todos', value: 'all' },
   ];
 
+  const availabilityOptions: { label: string; value: AvailabilityParam }[] = [
+    { label: 'Disponibles y asignados', value: 'all' },
+    { label: 'Disponibles', value: 'available' },
+    { label: 'Asignados', value: 'assigned' },
+  ];
+
+  const categorySelectOptions = [
+    { label: 'Todas las categorías', value: 'all' },
+    ...categoryOptions.map((c) => ({ label: c.name, value: c.id })),
+  ];
+
   return (
     <div className="flex h-full flex-col gap-4 p-6 overflow-hidden">
       <div className="flex items-center gap-3">
@@ -171,6 +189,20 @@ export function AssetsTablePage({
       <TablePageToolbar config={{
         search: { value: currentQ, onChange: (q) => updateParams({ q: q.trim() || null, afterCursor: null, beforeCursor: null }), placeholder: 'Buscar por código, marca, modelo...' },
         toggles: isActiveOptions.map((opt) => ({ label: opt.label, active: currentIsActive === opt.value, onClick: () => updateParams({ isActive: opt.value, afterCursor: null, beforeCursor: null }) })),
+        selects: [
+          {
+            label: 'Disponibilidad',
+            value: currentAvailability,
+            options: availabilityOptions,
+            onChange: (v) => updateParams({ availability: v === 'all' ? null : v, afterCursor: null, beforeCursor: null }),
+          },
+          {
+            label: 'Categoría',
+            value: currentCategoryId || 'all',
+            options: categorySelectOptions,
+            onChange: (v) => updateParams({ categoryId: v === 'all' ? null : v, afterCursor: null, beforeCursor: null }),
+          },
+        ],
         exports: [
           { label: 'Inventario', description: 'Lista completa de activos', action: exportInventoryAction },
           { label: 'Depreciación', description: 'Valores y vida útil restante', action: exportDepreciationAction },
