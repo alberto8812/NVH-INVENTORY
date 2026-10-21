@@ -14,6 +14,7 @@ vi.mock('@/lib/prisma', () => ({
       count: vi.fn(),
     },
     category: {
+      findMany: vi.fn(),
       findFirst: vi.fn(),
       findUnique: vi.fn(),
       update: vi.fn(),
@@ -66,6 +67,7 @@ import { hasPermission } from '@/lib/permissions';
 import { writeAudit, getRequestMeta } from '@/lib/audit';
 import {
   listAssetsAction,
+  listAssetCategoryOptionsAction,
   searchAssetsAction,
   searchAssetsForTransferAction,
   getCategoryFieldConfigAction,
@@ -202,6 +204,70 @@ describe('listAssetsAction', () => {
     await listAssetsAction({ isActive: 'active' });
     const txCall = (prisma.$transaction as ReturnType<typeof vi.fn>).mock.calls[0][0];
     expect(txCall).toBeDefined();
+  });
+
+  it('filters available assets (no active assignment)', async () => {
+    mockAuth.mockResolvedValue(adminSession);
+    (prisma.$transaction as ReturnType<typeof vi.fn>).mockResolvedValue([[], 0]);
+    await listAssetsAction({ availability: 'available' });
+    expect(mockAsset.count).toHaveBeenCalledWith({
+      where: expect.objectContaining({ assignments: { none: { status: 'ACTIVE' } } }),
+    });
+  });
+
+  it('filters assigned assets (with an active assignment)', async () => {
+    mockAuth.mockResolvedValue(adminSession);
+    (prisma.$transaction as ReturnType<typeof vi.fn>).mockResolvedValue([[], 0]);
+    await listAssetsAction({ availability: 'assigned' });
+    expect(mockAsset.count).toHaveBeenCalledWith({
+      where: expect.objectContaining({ assignments: { some: { status: 'ACTIVE' } } }),
+    });
+  });
+
+  it('combines category and availability filters', async () => {
+    mockAuth.mockResolvedValue(adminSession);
+    (prisma.$transaction as ReturnType<typeof vi.fn>).mockResolvedValue([[], 0]);
+    await listAssetsAction({ categoryId: 'cat1', availability: 'available' });
+    expect(mockAsset.count).toHaveBeenCalledWith({
+      where: expect.objectContaining({
+        categoryId: 'cat1',
+        assignments: { none: { status: 'ACTIVE' } },
+      }),
+    });
+  });
+
+  it('does not filter by availability by default', async () => {
+    mockAuth.mockResolvedValue(adminSession);
+    (prisma.$transaction as ReturnType<typeof vi.fn>).mockResolvedValue([[], 0]);
+    await listAssetsAction();
+    const where = mockAsset.count.mock.calls[0][0].where;
+    expect(where).not.toHaveProperty('assignments');
+  });
+});
+
+// ─── listAssetCategoryOptionsAction ─────────────────────────────────────────
+
+describe('listAssetCategoryOptionsAction', () => {
+  beforeEach(() => vi.clearAllMocks());
+
+  it('returns FORBIDDEN when not logged in', async () => {
+    mockAuth.mockResolvedValue(null);
+    const r = await listAssetCategoryOptionsAction();
+    expect(r.ok).toBe(false);
+  });
+
+  it('returns every category as id/name ordered by name', async () => {
+    mockAuth.mockResolvedValue(viewerSession);
+    (prisma.category.findMany as ReturnType<typeof vi.fn>).mockResolvedValue([
+      { id: 'c1', name: 'Monitor' },
+      { id: 'c2', name: 'Portátil' },
+    ]);
+    const r = await listAssetCategoryOptionsAction();
+    expect(r).toEqual({ ok: true, data: [{ id: 'c1', name: 'Monitor' }, { id: 'c2', name: 'Portátil' }] });
+    expect(prisma.category.findMany).toHaveBeenCalledWith({
+      select: { id: true, name: true },
+      orderBy: { name: 'asc' },
+    });
   });
 });
 

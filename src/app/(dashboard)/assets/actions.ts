@@ -90,6 +90,8 @@ export interface ListAssetsParams {
   categoryId?: string;
   generalStatus?: string;
   locationId?: string;
+  /** available = no ACTIVE assignment; assigned = has one */
+  availability?: 'available' | 'assigned';
 }
 
 export interface ListAssetsResult {
@@ -116,6 +118,8 @@ export async function listAssetsAction(
   if (params.categoryId) filterWhere.categoryId = params.categoryId;
   if (params.generalStatus) filterWhere.generalStatus = params.generalStatus;
   if (params.locationId) filterWhere.locationId = params.locationId;
+  if (params.availability === 'available') filterWhere.assignments = { none: { status: 'ACTIVE' } };
+  else if (params.availability === 'assigned') filterWhere.assignments = { some: { status: 'ACTIVE' } };
   if (q.length > 0) {
     filterWhere.OR = [
       { assetCode: { contains: q } },
@@ -195,6 +199,19 @@ export async function listAssetsAction(
     rowCount,
     pageInfo: { hasNextPage, hasPreviousPage, startCursor, endCursor, limit },
   });
+}
+
+// ─── Category options (assets table filter) ─────────────────────────────────
+
+export async function listAssetCategoryOptionsAction(): Promise<ActionResult<{ id: string; name: string }[]>> {
+  const session = await auth();
+  if (!session?.user || !hasPermission(session.user.role as Role, 'assets', 'read'))
+    return err('FORBIDDEN', 'Sin permiso');
+  const rows = await prisma.category.findMany({
+    select: { id: true, name: true },
+    orderBy: { name: 'asc' },
+  });
+  return ok(rows);
 }
 
 // ─── Search (autocomplete for assignments) ──────────────────────────────────
