@@ -94,7 +94,7 @@ export const assetColumns: ColumnDef<AssetRow>[] = [
     id: 'assignments',
     header: 'Asignado',
     cell: ({ row }) =>
-      row.original.assignmentsCount > 0 ? (
+      row.original.isAssigned ? (
         <Badge variant="default" className="text-xs">Sí</Badge>
       ) : (
         <span className="text-xs text-muted-foreground">No</span>

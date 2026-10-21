@@ -39,7 +39,10 @@ export interface AssetRow {
   bodegaName: string | null;
   parentAssetId: string | null;
   parentAssetCode: string | null;
+  /** Total assignments ever (history) — used to block deletion */
   assignmentsCount: number;
+  /** Has an ACTIVE assignment right now */
+  isAssigned: boolean;
   componentsCount: number;
   isActive: boolean;
   createdAt: string;

@@ -42,6 +42,8 @@ type PrismaAssetWithRelations = {
   bodega: { name: string } | null;
   parentAsset: { assetCode: string } | null;
   _count: { assignments: number; components: number };
+  /** Only the ACTIVE assignment (at most one) */
+  assignments: Array<{ id: string }>;
 };
 
 export const assetDetailInclude = {
@@ -66,6 +68,7 @@ export const assetInclude = {
   bodega: { select: { name: true } },
   parentAsset: { select: { assetCode: true } },
   _count: { select: { assignments: true, components: true } },
+  assignments: { where: { status: 'ACTIVE' as const }, select: { id: true }, take: 1 },
 } as const;
 
 type PrismaAssetDetailWithRelations = PrismaAssetWithRelations & {
@@ -130,6 +133,7 @@ export function toAssetRow(a: PrismaAssetWithRelations): AssetRow {
     parentAssetId: a.parentAssetId,
     parentAssetCode: a.parentAsset?.assetCode ?? null,
     assignmentsCount: a._count.assignments,
+    isAssigned: a.assignments.length > 0,
     componentsCount: a._count.components,
     isActive: a.isActive,
     createdAt: a.createdAt.toISOString(),
