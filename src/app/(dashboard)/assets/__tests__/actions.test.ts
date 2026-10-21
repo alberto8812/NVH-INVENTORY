@@ -151,6 +151,7 @@ const baseAsset = {
   bodega: null,
   parentAsset: null,
   _count: { assignments: 0, components: 0 },
+  assignments: [],
 };
 
 // ─── listAssetsAction ───────────────────────────────────────────────────────
@@ -183,6 +184,36 @@ describe('listAssetsAction', () => {
     expect(r.data.rowCount).toBe(1);
     expect(r.data.pageInfo.hasNextPage).toBe(false);
     expect(r.data.pageInfo.hasPreviousPage).toBe(false);
+  });
+
+  it('marks an asset with only past assignments as not assigned', async () => {
+    mockAuth.mockResolvedValue(viewerSession);
+    const returned = { ...baseAsset, _count: { assignments: 3, components: 0 }, assignments: [] };
+    (prisma.$transaction as ReturnType<typeof vi.fn>).mockResolvedValue([[returned], 1]);
+    const r = await listAssetsAction();
+    if (!r.ok) throw new Error('expected ok');
+    expect(r.data.rows[0].isAssigned).toBe(false);
+    expect(r.data.rows[0].assignmentsCount).toBe(3); // history still blocks deletion
+  });
+
+  it('marks an asset with an active assignment as assigned', async () => {
+    mockAuth.mockResolvedValue(viewerSession);
+    const assigned = { ...baseAsset, _count: { assignments: 1, components: 0 }, assignments: [{ id: 'asg1' }] };
+    (prisma.$transaction as ReturnType<typeof vi.fn>).mockResolvedValue([[assigned], 1]);
+    const r = await listAssetsAction();
+    if (!r.ok) throw new Error('expected ok');
+    expect(r.data.rows[0].isAssigned).toBe(true);
+  });
+
+  it('loads only the active assignment to compute isAssigned', async () => {
+    mockAuth.mockResolvedValue(viewerSession);
+    (prisma.$transaction as ReturnType<typeof vi.fn>).mockResolvedValue([[], 0]);
+    await listAssetsAction();
+    expect(mockAsset.findMany).toHaveBeenCalledWith(expect.objectContaining({
+      include: expect.objectContaining({
+        assignments: { where: { status: 'ACTIVE' }, select: { id: true }, take: 1 },
+      }),
+    }));
   });
 
   it('detects hasNextPage when extra row returned', async () => {
